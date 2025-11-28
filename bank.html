@@ -3,16 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>銀行客戶流失預測系統 | AI Churn Prediction</title>
-    <!-- 引入字體與圖示 -->
+    <title>銀行客戶流失預測系統 | Bank Customer Churn</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- 引入自訂 CSS -->
+    <!-- 引入共用 CSS -->
     <link rel="stylesheet" href="style.css">
 
     <!-- 引入 Chart.js 用於圖表繪製 -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        /* 銀行版專屬樣式 (若要覆寫共用設定可寫在這) */
+        
+        /* 設定「返回首頁」按鈕樣式 (固定在底部) */
+        .back-home {
+            margin-top: auto; /* 關鍵：自動推到最下方 */
+            color: var(--text-sub);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            transition: 0.3s;
+            border-radius: 8px;
+        }
+
+        .back-home:hover {
+            color: white;
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        /* 手機版適應調整：確保在手機上不會被推太遠 */
+        @media (max-width: 1024px) {
+            .back-home {
+                margin-top: 0;
+                margin-left: auto; /* 手機版改為推到最右邊 */
+                border-left: 1px solid var(--border);
+                border-radius: 0;
+            }
+        }
+    </style>
 </head>
 <body>
 
@@ -26,7 +57,8 @@
         <a href="#" class="menu-item"><i class="fa-solid fa-users"></i> 客戶管理</a>
         <a href="#" class="menu-item"><i class="fa-solid fa-microchip"></i> 模型監控</a>
         <a href="#" class="menu-item"><i class="fa-solid fa-gear"></i> 系統設定</a>
-        <!-- 返回首頁按鈕 -->
+
+        <!-- 這裡加入了「返回入口首頁」按鈕，並透過 CSS 推到最下方 -->
         <a href="index.html" class="back-home">
             <i class="fa-solid fa-arrow-left"></i> 返回入口首頁
         </a>
@@ -35,7 +67,7 @@
     <!-- 主內容區 -->
     <main class="main-content">
         <header>
-            <h1>客戶流失預測系統</h1>
+            <h1>銀行客戶流失預測系統</h1>
             <p class="subtitle">輸入客戶特徵參數，AI 模型將即時計算流失機率 (Churn Probability)。</p>
         </header>
 
@@ -157,8 +189,9 @@
         </section>
     </main>
 
-    <!-- 引入自訂 JavaScript (放在 body 結尾以確保 DOM 已載入) -->
+    <!-- 引入自訂 JavaScript -->
     <script src="script.js"></script>
 </body>
 </html>
+
 
