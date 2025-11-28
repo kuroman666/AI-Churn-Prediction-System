@@ -1,4 +1,4 @@
-<!<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
@@ -9,29 +9,51 @@
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* 電信版專屬配色覆寫 (紫色系) */
+        /* 電信版專屬配色 (紫色系) */
         :root {
-            --primary: #a855f7; /* 紫色 */
-            --secondary: #f472b6; /* 粉色 */
+            --primary: #a855f7;
+            --secondary: #f472b6;
         }
         .btn-predict { background: linear-gradient(90deg, #a855f7, #ec4899); }
         .sidebar { border-right-color: #4c1d95; }
         .menu-item.active { background-color: rgba(168, 85, 247, 0.1); color: #a855f7; }
-        .back-home { margin-top: auto; color: #94a3b8; text-decoration: none; display: flex; align-items: center; gap: 10px; padding: 12px; transition: 0.3s; }
-        .back-home:hover { color: white; }
+        
+        /* 返回按鈕樣式 */
+        .back-home {
+            margin-top: auto;
+            color: var(--text-sub);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            transition: 0.3s;
+            border-radius: 8px;
+        }
+        .back-home:hover { color: white; background-color: rgba(255, 255, 255, 0.05); }
+
+        /* 表單區塊標題 */
+        .form-section-title {
+            color: #a855f7;
+            font-size: 16px;
+            font-weight: 600;
+            margin: 25px 0 15px 0;
+            padding-bottom: 8px;
+            border-bottom: 1px dashed #334155;
+            grid-column: 1 / -1;
+        }
     </style>
 </head>
 <body>
 
     <nav class="sidebar">
         <div class="brand" style="color: #a855f7;">
-            <i class="fa-solid fa-layer-group"></i>
+            <i class="fa-solid fa-tower-broadcast"></i>
             Telecom AI
         </div>
         <a href="#" class="menu-item active"><i class="fa-solid fa-signal"></i> 預測儀表板</a>
         <a href="#" class="menu-item"><i class="fa-solid fa-file-contract"></i> 合約分析</a>
         
-        <!-- 返回首頁按鈕 -->
         <a href="index.html" class="back-home">
             <i class="fa-solid fa-arrow-left"></i> 返回入口首頁
         </a>
@@ -40,70 +62,185 @@
     <main class="main-content">
         <header>
             <h1>電信客戶流失預測</h1>
-            <p class="subtitle">輸入用戶合約與服務使用狀況，預測攜碼跳槽 (Churn) 風險。</p>
+            <p class="subtitle">輸入 19 項用戶特徵數據，預測是否會發生流失 (Churn)。</p>
         </header>
 
         <section class="input-section">
             <div class="card">
                 <div class="card-header">
-                    <i class="fa-solid fa-sim-card"></i> 用戶合約特徵 (Features)
+                    <i class="fa-solid fa-sliders"></i> 用戶特徵參數 (Features)
                 </div>
+                
+                <!-- 注意：這裡改用 telecomForm -->
                 <form id="telecomForm">
+                    
+                    <!-- 1. 用戶基本資料 -->
                     <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="form-section-title"><i class="fa-solid fa-user"></i> 基本資料 (Demographics)</div>
+                        
                         <div>
-                            <label>合約期限 (Contract)</label>
-                            <select id="contract">
-                                <option value="month">按月付費 (Month-to-month)</option>
-                                <option value="year1">一年合約 (One year)</option>
-                                <option value="year2">兩年合約 (Two year)</option>
+                            <label>性別 (Gender)</label>
+                            <select id="gender">
+                                <option value="Female">Female (女性)</option>
+                                <option value="Male">Male (男性)</option>
                             </select>
                         </div>
                         <div>
-                            <label>網路服務 (Internet)</label>
-                            <select id="internet">
-                                <option value="fiber">光纖 (Fiber Optic)</option>
-                                <option value="dsl">DSL</option>
-                                <option value="no">無網路</option>
+                            <label>老年用戶 (SeniorCitizen)</label>
+                            <select id="SeniorCitizen">
+                                <option value="0">0 (No)</option>
+                                <option value="1">1 (Yes)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label>伴侶 (Partner)</label>
+                            <select id="Partner">
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label>親屬 (Dependents)</label>
+                            <select id="Dependents">
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                            </select>
+                        </div>
+                        <div style="grid-column: 1 / -1;">
+                            <label>在網時長 (Tenure: 0-72月)</label>
+                            <input type="number" id="tenure" value="12" min="0" max="72">
+                        </div>
+                    </div>
+
+                    <!-- 2. 服務開通狀況 -->
+                    <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="form-section-title"><i class="fa-solid fa-wifi"></i> 服務項目 (Services)</div>
+
+                        <div>
+                            <label>電話服務 (PhoneService)</label>
+                            <select id="PhoneService">
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label>多線業務 (MultipleLines)</label>
+                            <select id="MultipleLines">
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                                <option value="No phone service">No phone service</option>
+                            </select>
+                        </div>
+                        
+                        <div style="grid-column: 1 / -1;">
+                            <label>網路服務 (InternetService)</label>
+                            <select id="InternetService">
+                                <option value="Fiber optic">Fiber optic (光纖)</option>
+                                <option value="DSL">DSL (數位網路)</option>
+                                <option value="No">No (無網路)</option>
+                            </select>
+                        </div>
+
+                        <!-- 網路加值服務 -->
+                        <div>
+                            <label>網路安全 (OnlineSecurity)</label>
+                            <select id="OnlineSecurity">
+                                <option value="No">No</option>
+                                <option value="Yes">Yes</option>
+                                <option value="No internet service">No internet service</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label>線上備份 (OnlineBackup)</label>
+                            <select id="OnlineBackup">
+                                <option value="No">No</option>
+                                <option value="Yes">Yes</option>
+                                <option value="No internet service">No internet service</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label>設備保護 (DeviceProtection)</label>
+                            <select id="DeviceProtection">
+                                <option value="No">No</option>
+                                <option value="Yes">Yes</option>
+                                <option value="No internet service">No internet service</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label>技術支援 (TechSupport)</label>
+                            <select id="TechSupport">
+                                <option value="No">No</option>
+                                <option value="Yes">Yes</option>
+                                <option value="No internet service">No internet service</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label>網路電視 (StreamingTV)</label>
+                            <select id="StreamingTV">
+                                <option value="No">No</option>
+                                <option value="Yes">Yes</option>
+                                <option value="No internet service">No internet service</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label>網路電影 (StreamingMovies)</label>
+                            <select id="StreamingMovies">
+                                <option value="No">No</option>
+                                <option value="Yes">Yes</option>
+                                <option value="No internet service">No internet service</option>
                             </select>
                         </div>
                     </div>
 
+                    <!-- 3. 合約與帳務 -->
                     <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="form-section-title"><i class="fa-solid fa-file-invoice-dollar"></i> 合約與帳務 (Contract & Billing)</div>
+
+                        <div style="grid-column: 1 / -1;">
+                            <label>合約方式 (Contract)</label>
+                            <select id="Contract">
+                                <option value="Month-to-month">Month-to-month (按月)</option>
+                                <option value="One year">One year (一年)</option>
+                                <option value="Two year">Two year (兩年)</option>
+                            </select>
+                        </div>
+                        
                         <div>
-                            <label>在網月數 (Tenure)</label>
-                            <input type="number" value="12" placeholder="月">
+                            <label>電子帳單 (PaperlessBilling)</label>
+                            <select id="PaperlessBilling">
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                            </select>
                         </div>
                         <div>
-                            <label>月租費 (Monthly Charges)</label>
-                            <input type="number" value="70.5" placeholder="$">
+                            <label>付款方式 (PaymentMethod)</label>
+                            <select id="PaymentMethod">
+                                <option value="Electronic check">Electronic check</option>
+                                <option value="Mailed check">Mailed check</option>
+                                <option value="Bank transfer (automatic)">Bank transfer</option>
+                                <option value="Credit card (automatic)">Credit card</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label>月費用 (MonthlyCharges)</label>
+                            <input type="number" id="MonthlyCharges" value="70.35">
+                        </div>
+                        <div>
+                            <label>總費用 (TotalCharges)</label>
+                            <input type="number" id="TotalCharges" value="1390.5">
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label>總費用 (Total Charges)</label>
-                        <input type="number" value="850.5">
-                    </div>
-
-                    <div class="form-group" style="display: flex; gap: 20px; flex-wrap: wrap;">
-                        <label style="display: flex; align-items: center; gap: 8px;">
-                            <input type="checkbox" checked> 串流電影
-                        </label>
-                        <label style="display: flex; align-items: center; gap: 8px;">
-                            <input type="checkbox"> 裝置保護
-                        </label>
-                        <label style="display: flex; align-items: center; gap: 8px;">
-                            <input type="checkbox"> 線上備份
-                        </label>
-                    </div>
-
-                    <button type="button" class="btn-predict" onclick="predictChurn()">
+                    <!-- 按鈕觸發新的函數 predictTelecomChurn -->
+                    <button type="button" class="btn-predict" onclick="predictTelecomChurn()">
                         <i class="fa-solid fa-satellite-dish"></i> 執行電信 AI 預測
                     </button>
                 </form>
             </div>
         </section>
 
-        <!-- 右欄：預測結果 (共用樣式) -->
+        <!-- 右欄：預測結果 -->
         <section class="result-container" id="resultSection">
             <div class="card score-card">
                 <div class="card-header" style="justify-content: center; border: none;">
@@ -122,7 +259,7 @@
                     <i class="fa-solid fa-list-check"></i> 關鍵因子分析
                 </div>
                 <ul class="factors-list" id="factorsList">
-                    <!-- 這裡會由 script.js 填入，建議未來可客製化 -->
+                    <!-- Javascript 將動態填入內容 -->
                 </ul>
                 <div style="margin-top: 20px; padding: 15px; background: rgba(168, 85, 247, 0.1); border-radius: 8px; border-left: 3px solid #a855f7;">
                     <h4 style="color: #a855f7; margin-bottom: 5px; font-size: 14px;">💡 建議</h4>
@@ -132,12 +269,9 @@
         </section>
     </main>
 
-    <!-- 這裡暫時共用原本的 script.js，若要寫新邏輯請建立 telecom-script.js -->
     <script src="script.js"></script>
 </body>
 </html>
-
-
 
 
 
