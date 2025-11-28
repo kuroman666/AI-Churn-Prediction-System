@@ -32,6 +32,16 @@
         }
         .back-home:hover { color: white; background-color: rgba(255, 255, 255, 0.05); }
 
+        /* 手機版適應調整：確保在手機上不會被推太遠 */
+        @media (max-width: 1024px) {
+            .back-home {
+                margin-top: 0;
+                margin-left: auto; /* 手機版改為推到最右邊 */
+                border-left: 1px solid var(--border);
+                border-radius: 0;
+            }
+        }
+
         /* 表單區塊標題 */
         .form-section-title {
             color: #a855f7;
