@@ -29,7 +29,7 @@ async function predictChurn() {
     try {
         // 2. 發送 POST 請求給 Python 後端 (app.py)
         // 假設您的 app.py 在本機執行，網址通常是 http://127.0.0.1:5000/predict
-        const response = await fetch('http://127.0.0.1:5000/predict', {
+        const response = await fetch('https://ai-churn-prediction-system.onrender.com', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
