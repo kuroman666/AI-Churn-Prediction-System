@@ -1,5 +1,6 @@
+/* style.css */
 :root {
-    --primary: #38bdf8;       /* 亮藍色 */
+    --primary: #38bdf8;       /* 預設亮藍色 (銀行用) */
     --secondary: #fbbf24;     /* 琥珀黃 */
     --bg-dark: #0f172a;       /* 深藍底色 */
     --bg-card: #1e293b;       /* 卡片底色 */
@@ -24,7 +25,7 @@ body {
     min-height: 100vh;
 }
 
-/* --- 側邊欄 Sidebar (電腦版樣式) --- */
+/* --- 側邊欄 Sidebar --- */
 .sidebar {
     width: 260px;
     background-color: #020617;
@@ -33,9 +34,9 @@ body {
     display: flex;
     flex-direction: column;
     gap: 20px;
-    position: fixed; /* 電腦版固定在左側 */
+    position: fixed;
     height: 100vh;
-    z-index: 100;    /* 確保在最上層 */
+    z-index: 100;
     overflow-y: auto;
 }
 
@@ -62,19 +63,36 @@ body {
 }
 
 .menu-item.active, .menu-item:hover {
-    background-color: rgba(56, 189, 248, 0.1);
+    background-color: rgba(255, 255, 255, 0.05);
     color: var(--primary);
+}
+
+/* 返回首頁按鈕通用樣式 */
+.back-home {
+    margin-top: auto;
+    color: var(--text-sub);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    transition: 0.3s;
+    border-radius: 8px;
+}
+
+.back-home:hover {
+    color: white;
+    background-color: rgba(255, 255, 255, 0.05);
 }
 
 /* --- 主內容區 Main Content --- */
 .main-content {
-    margin-left: 260px; /* 留出側邊欄空間 */
+    margin-left: 260px;
     padding: 40px;
     width: 100%;
     display: grid;
-    grid-template-columns: 350px 1fr; /* 左側表單，右側結果 */
+    grid-template-columns: 350px 1fr;
     gap: 40px;
-    transition: margin-left 0.3s; /* 平滑過渡 */
 }
 
 header {
@@ -199,7 +217,7 @@ input:focus, select:focus {
 .risk-high { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
 .risk-low { background: rgba(16, 185, 129, 0.2); color: var(--success); }
 
-/* 關鍵因子列表 (XAI) */
+/* 關鍵因子列表 */
 .factors-list {
     list-style: none;
 }
@@ -217,47 +235,39 @@ input:focus, select:focus {
 .factor-name { font-weight: 500; }
 .factor-impact { font-size: 14px; color: var(--secondary); }
 
-/* --- 響應式調整 (手機與平板) --- */
+/* --- 響應式調整 --- */
 @media (max-width: 1024px) {
-    /* 1. 調整整體佈局方向為垂直 */
-    body {
-        flex-direction: column;
-    }
-
-    /* 2. 側邊欄變身為頂部導覽列 */
+    body { flex-direction: column; }
+    
     .sidebar {
-        width: 100%;           /* 佔滿寬度 */
-        height: auto;          /* 高度自動 */
-        position: relative;    /* 不再固定定位 */
-        flex-direction: row;   /* 改為橫向排列 */
-        align-items: center;   /* 垂直置中 */
+        width: 100%;
+        height: auto;
+        position: relative;
+        flex-direction: row;
+        align-items: center;
         padding: 15px 20px;
         border-right: none;
         border-bottom: 1px solid var(--border);
-        overflow-x: auto;      /* 內容太多時可橫向滑動 */
-        white-space: nowrap;   /* 防止按鈕換行 */
+        overflow-x: auto;
+        white-space: nowrap;
     }
 
-    /* Logo 微調 */
-    .brand {
-        margin-bottom: 0;
-        margin-right: 30px;
-        font-size: 20px;
-    }
+    .brand { margin-bottom: 0; margin-right: 30px; font-size: 20px; }
 
-    /* 3. 主內容區調整 */
     .main-content {
-        margin-left: 0;        /* 移除左邊距 */
-        grid-template-columns: 1fr; /* 改為單欄排版 */
+        margin-left: 0;
+        grid-template-columns: 1fr;
         padding: 20px;
-        margin-top: 0;
     }
     
-    /* 讓表單內的雙欄位在極小螢幕變成單欄 */
     .form-group[style*="grid-template-columns"] {
         grid-template-columns: 1fr !important;
     }
+
+    .back-home {
+        margin-top: 0;
+        margin-left: auto;
+        border-left: 1px solid var(--border);
+        border-radius: 0;
+    }
 }
-
-
-

@@ -7,85 +7,39 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- 引入共用 CSS -->
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="bank.css">
 
-    <!-- 引入 Chart.js 用於圖表繪製 -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-    <style>
-        /* 銀行版專屬樣式 (若要覆寫共用設定可寫在這) */
-        
-        /* 設定「返回首頁」按鈕樣式 (固定在底部) */
-        .back-home {
-            margin-top: auto; /* 關鍵：自動推到最下方 */
-            color: var(--text-sub);
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 12px 16px;
-            transition: 0.3s;
-            border-radius: 8px;
-        }
-
-        .back-home:hover {
-            color: white;
-            background-color: rgba(255, 255, 255, 0.05);
-        }
-
-        /* 手機版適應調整：確保在手機上不會被推太遠 */
-        @media (max-width: 1024px) {
-            .back-home {
-                margin-top: 0;
-                margin-left: auto; /* 手機版改為推到最右邊 */
-                border-left: 1px solid var(--border);
-                border-radius: 0;
-            }
-        }
-    </style>
 </head>
 <body>
-
-    <!-- 左側導覽列 -->
     <nav class="sidebar">
         <div class="brand">
-            <i class="fa-solid fa-layer-group"></i>
-            Bank AI
+            <i class="fa-solid fa-layer-group"></i> Bank AI
         </div>
         <a href="#" class="menu-item active"><i class="fa-solid fa-chart-pie"></i> 預測儀表板</a>
         <a href="#" class="menu-item"><i class="fa-solid fa-users"></i> 客戶管理</a>
         <a href="#" class="menu-item"><i class="fa-solid fa-microchip"></i> 模型監控</a>
-        <a href="#" class="menu-item"><i class="fa-solid fa-gear"></i> 系統設定</a>
-
-        <!-- 這裡加入了「返回入口首頁」按鈕，並透過 CSS 推到最下方 -->
-        <a href="index.html" class="back-home">
-            <i class="fa-solid fa-arrow-left"></i> 返回入口首頁
-        </a>
+        <a href="index.html" class="back-home"><i class="fa-solid fa-arrow-left"></i> 返回入口首頁</a>
     </nav>
 
-    <!-- 主內容區 -->
     <main class="main-content">
         <header>
             <h1>銀行客戶流失預測系統</h1>
             <p class="subtitle">輸入客戶特徵參數，AI 模型將即時計算流失機率 (Churn Probability)。</p>
         </header>
 
-        <!-- 左欄：輸入表單 -->
         <section class="input-section">
             <div class="card">
-                <div class="card-header">
-                    <i class="fa-solid fa-pen-to-square"></i> 客戶特徵參數 (Features)
-                </div>
+                <div class="card-header"><i class="fa-solid fa-pen-to-square"></i> 客戶特徵參數 (Features)</div>
                 <form id="predictionForm">
                     <div class="form-group">
-                        <label>信用分數 (Credit Score)</label>
+                        <label>信用分數</label>
                         <input type="number" id="creditScore" placeholder="例如: 650" value="619" min="300" max="850">
                     </div>
-
                     <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                         <div>
-                            <label>地理位置 (Geography)</label>
+                            <label>地理位置</label>
                             <select id="geography">
                                 <option value="France">France</option>
                                 <option value="Germany">Germany</option>
@@ -93,30 +47,21 @@
                             </select>
                         </div>
                         <div>
-                            <label>性別 (Gender)</label>
+                            <label>性別</label>
                             <select id="gender">
                                 <option value="Female">Female</option>
                                 <option value="Male">Male</option>
                             </select>
                         </div>
                     </div>
-
                     <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                        <div>
-                            <label>年齡 (Age)</label>
-                            <input type="number" id="age" value="42">
-                        </div>
-                        <div>
-                            <label>往來年資 (Tenure)</label>
-                            <input type="number" id="tenure" value="2">
-                        </div>
+                        <div><label>年齡</label><input type="number" id="age" value="42"></div>
+                        <div><label>往來年資</label><input type="number" id="tenure" value="2"></div>
                     </div>
-
                     <div class="form-group">
-                        <label>帳戶餘額 (Balance)</label>
+                        <label>帳戶餘額</label>
                         <input type="number" id="balance" value="0">
                     </div>
-
                     <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                         <div>
                             <label>產品數量</label>
@@ -127,12 +72,8 @@
                                 <option value="4">4</option>
                             </select>
                         </div>
-                        <div>
-                            <label>預估薪資</label>
-                            <input type="number" id="salary" value="101348">
-                        </div>
+                        <div><label>預估薪資</label><input type="number" id="salary" value="101348"></div>
                     </div>
-
                     <div class="form-group" style="display: flex; gap: 20px;">
                         <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
                             <input type="checkbox" id="hasCrCard" checked style="width: auto;"> 持有信用卡
@@ -149,49 +90,27 @@
             </div>
         </section>
 
-        <!-- 右欄：預測結果 -->
         <section class="result-container" id="resultSection">
-            <!-- 結果卡片 -->
             <div class="card score-card">
-                <div class="card-header" style="justify-content: center; border: none;">
-                    預測結果 (Prediction)
-                </div>
+                <div class="card-header" style="justify-content: center; border: none;">預測結果</div>
                 <div id="riskBadge" class="risk-badge risk-low">等待分析...</div>
-                
                 <div class="probability-value" id="probValue">--%</div>
                 <p style="color: var(--text-sub);">客戶流失機率</p>
-
-                <!-- Chart.js Canvas -->
                 <div style="height: 200px; margin-top: 20px;">
                     <canvas id="churnChart"></canvas>
                 </div>
             </div>
-
-            <!-- 可解釋性卡片 -->
             <div class="card">
-                <div class="card-header">
-                    <i class="fa-solid fa-magnifying-glass-chart"></i> 關鍵影響因子 (Explainable AI)
-                </div>
-                <p style="font-size: 14px; color: var(--text-sub); margin-bottom: 15px;">
-                    以下特徵對本次預測結果影響最大 (基於 SHAP 值模擬)：
-                </p>
-                <ul class="factors-list" id="factorsList">
-                    <!-- Javascript 將動態填入內容 -->
-                </ul>
-                
-                <div style="margin-top: 20px; padding: 15px; background: rgba(251, 191, 36, 0.1); border-radius: 8px; border-left: 3px solid var(--secondary);">
+                <div class="card-header"><i class="fa-solid fa-magnifying-glass-chart"></i> 關鍵影響因子</div>
+                <ul class="factors-list" id="factorsList"></ul>
+                <div class="suggestion-box">
                     <h4 style="color: var(--secondary); margin-bottom: 5px; font-size: 14px;">💡 建議挽留策略</h4>
-                    <p style="font-size: 14px; color: #cbd5e1;" id="suggestionText">
-                        系統建議...
-                    </p>
+                    <p style="font-size: 14px; color: #cbd5e1;" id="suggestionText">系統建議...</p>
                 </div>
             </div>
         </section>
     </main>
 
-    <!-- 引入自訂 JavaScript -->
-    <script src="script.js"></script>
+    <script src="bank.js"></script>
 </body>
 </html>
-
-

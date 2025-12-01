@@ -6,7 +6,6 @@
     <title>AI 預測系統入口 | AI Prediction Hub</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- 引入共用 CSS -->
     <link rel="stylesheet" href="style.css">
     <style>
         /* 僅用於首頁的額外樣式 */
@@ -20,7 +19,6 @@
             padding: 20px;
             text-align: center;
         }
-
         .portal-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -29,7 +27,6 @@
             max-width: 800px;
             margin-top: 50px;
         }
-
         .portal-card {
             background: var(--bg-card);
             border: 1px solid var(--border);
@@ -41,16 +38,12 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            position: relative;
-            overflow: hidden;
         }
-
         .portal-card:hover {
             transform: translateY(-10px);
             border-color: var(--primary);
             box-shadow: 0 20px 40px rgba(56, 189, 248, 0.15);
         }
-
         .portal-icon {
             font-size: 60px;
             margin-bottom: 20px;
@@ -63,19 +56,16 @@
             background: rgba(15, 23, 42, 0.5);
             transition: 0.3s;
         }
-
         /* 銀行卡片配色 */
         .card-bank .portal-icon { color: #38bdf8; border: 2px solid #38bdf8; }
         .card-bank:hover .portal-icon { background: #38bdf8; color: #fff; }
-
-        /* 電信卡片配色 (紫色系) */
+        /* 電信卡片配色 */
         .card-telecom .portal-icon { color: #a855f7; border: 2px solid #a855f7; }
         .card-telecom:hover .portal-icon { background: #a855f7; color: #fff; }
         .card-telecom:hover { border-color: #a855f7; box-shadow: 0 20px 40px rgba(168, 85, 247, 0.15); }
-
+        
         .portal-title { font-size: 24px; font-weight: 700; margin-bottom: 10px; }
         .portal-desc { color: var(--text-sub); font-size: 16px; line-height: 1.5; }
-        
         .hero-title {
             font-size: 48px;
             font-weight: 800;
@@ -90,34 +80,21 @@
     <div class="landing-container">
         <h1 class="hero-title">AI 客戶流失預測中心</h1>
         <p style="color: var(--text-sub); font-size: 18px;">請選擇您要進行分析的產業模型</p>
-
         <div class="portal-grid">
-            <!-- 連結到剛剛改名的 bank.html -->
             <a href="bank.html" class="portal-card card-bank">
                 <div class="portal-icon"><i class="fa-solid fa-building-columns"></i></div>
                 <div class="portal-title">銀行金融業</div>
-                <div class="portal-desc">
-                    針對銀行客戶進行信用與資產分析，預測帳戶關閉與資金流失風險。
-                </div>
+                <div class="portal-desc">預測帳戶關閉與資金流失風險。</div>
             </a>
-
-            <!-- 連結到新的 telecom.html -->
             <a href="telecom.html" class="portal-card card-telecom">
                 <div class="portal-icon"><i class="fa-solid fa-tower-cell"></i></div>
                 <div class="portal-title">電信通訊業</div>
-                <div class="portal-desc">
-                    分析合約期限、網路服務與月費模式，預測用戶攜碼跳槽機率。
-                </div>
+                <div class="portal-desc">預測合約用戶攜碼跳槽機率。</div>
             </a>
         </div>
-        
         <footer style="margin-top: 60px; color: #64748b; font-size: 14px;">
             AI Churn Prediction System v2.0
         </footer>
     </div>
 </body>
 </html>
-
-
-
-
