@@ -165,6 +165,64 @@ def predict():
         print(f"Prediction Error: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
+# app.py 新增部分
+
+@app.route('/predict_batch', methods=['POST'])
+def predict_batch():
+    global model
+    if not model:
+        load_model()
+        if not model:
+            return jsonify({'error': 'Model not loaded'}), 500
+
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file part'}), 400
+    
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({'error': 'No selected file'}), 400
+
+    try:
+        # 讀取 CSV
+        df = pd.read_csv(file)
+        
+        # 檢查必要欄位 (根據 FeatureEngineer 的需求)
+        required_cols = ['CreditScore', 'Geography', 'Gender', 'Age', 'Tenure', 
+                         'Balance', 'NumOfProducts', 'HasCrCard', 'IsActiveMember', 'EstimatedSalary']
+        
+        # 簡單驗證欄位是否存在
+        if not all(col in df.columns for col in required_cols):
+            return jsonify({'error': f'CSV 格式錯誤，缺少必要欄位。需包含: {required_cols}'}), 400
+
+        # 保留識別用的欄位 (如果有 CustomerId 或 Surname，先存起來對應結果)
+        ids = df['CustomerId'] if 'CustomerId' in df.columns else df.index
+        surnames = df['Surname'] if 'Surname' in df.columns else [''] * len(df)
+
+        # 進行前處理 (使用與單筆預測相同的邏輯)
+        # 注意: run_v2_preprocessing 會 drop 掉 CustomerId 和 Surname，所以上面要先存
+        processed_data = FeatureEngineer.run_v2_preprocessing(df, is_train=False)
+
+        # 預測機率 (只取流失機率 class=1)
+        probabilities = model.predict_proba(processed_data)[:, 1]
+
+        # 整理回傳結果
+        results = []
+        for i, prob in enumerate(probabilities):
+            results.append({
+                'customerId': int(ids[i]) if 'CustomerId' in df.columns else i,
+                'surname': str(surnames[i]),
+                'probability': float(prob)
+            })
+
+        return jsonify({
+            'status': 'success',
+            'results': results
+        })
+
+    except Exception as e:
+        print(f"Batch Prediction Error: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port, debug=True)
