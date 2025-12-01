@@ -119,7 +119,7 @@ def predict():
         }])
 
         # 後面的 FeatureEngineer 會自動處理，因為它有檢查 if 'id' in df_copy.columns，所以移除 id 不會報錯
-        #processed_data = FeatureEngineer.run_v2_preprocessing(raw_df, is_train=False)
+        processed_data = FeatureEngineer.run_v2_preprocessing(raw_df, is_train=False)
         
         # 1. 預測機率
         probability = model.predict_proba(processed_data)[0][1]
