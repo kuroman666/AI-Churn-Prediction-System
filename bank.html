@@ -26,7 +26,7 @@
     <main class="main-content">
         <header>
             <h1>銀行客戶流失預測系統</h1>
-            <p class="subtitle">輸入客戶特徵參數，AI 模型將即時計算流失機率 (Churn Probability)。</p>
+            <p class="subtitle">輸入客戶特徵參數，AI 模型將即時計算流失機率 (Churn Probability) 並解釋原因。</p>
         </header>
 
         <section class="input-section">
@@ -101,8 +101,13 @@
                 </div>
             </div>
             <div class="card">
-                <div class="card-header"><i class="fa-solid fa-magnifying-glass-chart"></i> 關鍵影響因子</div>
-                <ul class="factors-list" id="factorsList"></ul>
+                <div class="card-header"><i class="fa-solid fa-magnifying-glass-chart"></i> AI 決策因子分析 (SHAP)</div>
+                <p style="font-size: 12px; color: #94a3b8; margin-bottom: 10px;">
+                    <span style="color: #ef4444;">紅色</span> 代表增加流失風險，<span style="color: #10b981;">綠色</span> 代表降低流失風險。
+                </p>
+                <div style="height: 300px; position: relative;">
+                    <canvas id="shapChart"></canvas>
+                </div>
                 <div class="suggestion-box">
                     <h4 style="color: var(--secondary); margin-bottom: 5px; font-size: 14px;">💡 建議挽留策略</h4>
                     <p style="font-size: 14px; color: #cbd5e1;" id="suggestionText">系統建議...</p>

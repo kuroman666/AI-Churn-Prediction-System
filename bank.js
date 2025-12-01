@@ -1,5 +1,6 @@
 // bank.js
 let churnChartInstance = null;
+let shapChartInstance = null; // 新增 SHAP 圖表實例
 
 async function predictChurn() {
     const btn = document.querySelector('.btn-predict');
@@ -21,6 +22,7 @@ async function predictChurn() {
     };
 
     try {
+        // 請確保 URL 與 app.py 運行的位置一致
         const response = await fetch('https://ai-churn-prediction-system.onrender.com/predict', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -30,13 +32,13 @@ async function predictChurn() {
         const result = await response.json();
 
         if (response.ok) {
-            updateUI(result.probability, formData);
+            updateUI(result.probability, result.shap_data, formData);
         } else {
             alert('預測失敗：' + (result.error || '未知錯誤'));
         }
 
     } catch (error) {
-        alert('無法連接到後端伺服器。');
+        alert('無法連接到後端伺服器，請確認 app.py 是否已啟動並安裝 shap。');
         console.error('Connection error:', error);
     } finally {
         btn.innerHTML = originalText;
@@ -44,11 +46,10 @@ async function predictChurn() {
     }
 }
 
-function updateUI(probability, data) {
+function updateUI(probability, shapData, inputData) {
     const resultSection = document.getElementById('resultSection');
     const probValue = document.getElementById('probValue');
     const riskBadge = document.getElementById('riskBadge');
-    const factorsList = document.getElementById('factorsList');
     const suggestionText = document.getElementById('suggestionText');
 
     resultSection.classList.add('active');
@@ -63,42 +64,25 @@ function updateUI(probability, data) {
         riskBadge.innerText = '高風險 High Risk';
         probValue.style.background = `linear-gradient(90deg, #f87171, #ef4444)`;
         probValue.style.webkitBackgroundClip = 'text';
-        suggestionText.innerText = "客戶流失風險極高！建議立即指派專員聯繫。";
+        suggestionText.innerText = "客戶流失風險極高！主因可能是" + getTopReason(shapData) + "。建議立即聯繫。";
     } else {
         riskBadge.className = 'risk-badge risk-low';
         riskBadge.innerText = '低風險 Low Risk';
         probValue.style.background = 'linear-gradient(90deg, #34d399, #10b981)';
         probValue.style.webkitBackgroundClip = 'text';
-        suggestionText.innerText = "客戶狀態穩定。建議維持定期互動。";
+        suggestionText.innerText = "客戶狀態穩定。主要正面因素為" + getTopReason(shapData, false) + "。";
     }
 
     updateChart(probability, isHighRisk);
-
-    // 銀行專屬因子判斷
-    let factorsHtml = '';
-    if (data.geography === 'Germany') factorsHtml += createFactor('地理位置 (Germany)', '增加風險', true);
-    if (data.age > 45) factorsHtml += createFactor(`年齡 (${data.age})`, '增加風險', true);
-    if (!data.active) factorsHtml += createFactor('活躍狀態 (Inactive)', '增加風險', true);
-    else factorsHtml += createFactor('活躍狀態 (Active)', '降低風險', false);
-    if (data.balance > 100000) factorsHtml += createFactor('資產餘額偏高', '流失可能性增加', true);
-    factorsHtml += createFactor('AI 模型綜合評分', '計算完成', null);
-    
-    factorsList.innerHTML = factorsHtml;
+    updateShapChart(shapData); // 繪製 SHAP 圖表
 }
 
-function createFactor(name, impact, isBad) {
-    let icon, style;
-    if (isBad === true) {
-        icon = '<i class="fa-solid fa-arrow-trend-up"></i>';
-        style = 'color: #ef4444;';
-    } else if (isBad === false) {
-        icon = '<i class="fa-solid fa-arrow-trend-down"></i>';
-        style = 'color: #10b981;';
-    } else {
-        icon = '';
-        style = 'color: #94a3b8;';
-    }
-    return `<li class="factor-item"><span class="factor-name">${name}</span><span class="factor-impact" style="${style}">${icon} ${impact}</span></li>`;
+// 輔助函式：取得影響最大的原因文字
+function getTopReason(shapData, findRisk=true) {
+    if(!shapData) return "未知因素";
+    // 如果找風險(findRisk=true)，找 impact 最大的正值；否則找 impact 最小的負值
+    const sorted = [...shapData].sort((a, b) => findRisk ? b.impact - a.impact : a.impact - b.impact);
+    return sorted[0].feature;
 }
 
 function updateChart(probability, isHighRisk) {
@@ -110,7 +94,7 @@ function updateChart(probability, isHighRisk) {
     churnChartInstance = new Chart(ctx, {
         type: 'doughnut',
         data: {
-            labels: ['流失', '留存'],
+            labels: ['流失機率', '留存機率'],
             datasets: [{
                 data: [probability, 1 - probability],
                 backgroundColor: [activeColor, '#334155'],
@@ -123,6 +107,69 @@ function updateChart(probability, isHighRisk) {
             maintainAspectRatio: false,
             cutout: '75%',
             plugins: { legend: { display: false } }
+        }
+    });
+}
+
+// 新增：繪製 SHAP 影響力圖表 (水平 Bar Chart)
+function updateShapChart(shapData) {
+    const ctx = document.getElementById('shapChart').getContext('2d');
+
+    if (shapChartInstance) shapChartInstance.destroy();
+
+    // 準備數據
+    const labels = shapData.map(item => item.feature);
+    const dataValues = shapData.map(item => item.impact);
+    
+    // 設定顏色：正值(增加流失)為紅色，負值(降低流失)為綠色
+    const backgroundColors = dataValues.map(val => val > 0 ? '#ef4444' : '#10b981');
+
+    shapChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'SHAP Value (影響力)',
+                data: dataValues,
+                backgroundColor: backgroundColors,
+                borderRadius: 4,
+                borderSkipped: false
+            }]
+        },
+        options: {
+            indexAxis: 'y', // 轉為水平條形圖
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: {
+                    grid: { color: '#334155' },
+                    ticks: { color: '#94a3b8' },
+                    title: { display: true, text: '影響力 (右: 增加風險 / 左: 降低風險)', color: '#94a3b8' }
+                },
+                y: {
+                    grid: { display: false },
+                    ticks: { color: '#e2e8f0', font: { size: 11 } }
+                }
+            },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) label += ': ';
+                            let val = context.parsed.x;
+                            label += val.toFixed(4);
+                            return label;
+                        },
+                        afterLabel: function(context) {
+                            // 顯示該特徵的實際數值
+                            const dataIndex = context.dataIndex;
+                            return '實際數值: ' + shapData[dataIndex].value;
+                        }
+                    }
+                }
+            }
         }
     });
 }
