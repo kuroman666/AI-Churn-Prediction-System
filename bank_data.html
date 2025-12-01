@@ -11,28 +11,23 @@
     <link rel="stylesheet" href="bank.css">
 
     <style>
-        /* 針對有 custom-scrollbar 類別的容器設定捲軸 */
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 12px;  /* 垂直捲軸寬度 */
-            height: 12px; /* 水平捲軸高度 */
+        /* 自訂捲軸樣式，解決無法拖拉的問題 */
+        .table-scroll-container::-webkit-scrollbar {
+            width: 12px;  /* 加寬捲軸 */
+            height: 12px;
         }
-
-        /* 捲軸軌道 (背景) */
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: #0f172a; /* 深色背景 */
-            border-radius: 6px;
+        .table-scroll-container::-webkit-scrollbar-track {
+            background: #0f172a; /* 深色軌道 */
+            border-radius: 4px;
         }
-
-        /* 捲軸本體 (拉霸) */
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background-color: #475569; /* 灰藍色 */
-            border-radius: 6px; /* 圓角 */
-            border: 2px solid #0f172a; /* 邊框讓它看起來有間隙 */
+        .table-scroll-container::-webkit-scrollbar-thumb {
+            background: #475569; /* 灰色拉桿 */
+            border-radius: 4px;
+            border: 2px solid #0f172a; /* 增加邊距感 */
         }
-
-        /* 滑鼠移上去時變亮 */
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background-color: #64748b;
+        .table-scroll-container::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; /* 滑鼠移過去變亮 */
+            cursor: pointer;
         }
     </style>
 </head>
@@ -78,9 +73,9 @@
             <div class="card">
                 <div class="card-header"><i class="fa-solid fa-list-check"></i> 分析結果列表</div>
                 
-                <div class="custom-scrollbar" style="overflow-x: auto; max-height: 500px; overflow-y: auto;">
+                <div class="table-scroll-container" style="overflow-x: auto; max-height: 500px; overflow-y: auto; position: relative;">
                     <table style="width: 100%; border-collapse: collapse; color: #e2e8f0; font-size: 14px;">
-                        <thead style="background-color: #1e293b; position: sticky; top: 0; z-index: 10;">
+                        <thead style="background-color: #1e293b; position: sticky; top: 0; z-index: 10; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">
                             <tr>
                                 <th style="padding: 12px; text-align: left;">Customer ID</th>
                                 <th style="padding: 12px; text-align: left;">Surname</th>
