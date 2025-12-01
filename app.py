@@ -202,6 +202,12 @@ def predict_batch():
         # 注意: run_v2_preprocessing 會 drop 掉 CustomerId 和 Surname，所以上面要先存
         processed_data = FeatureEngineer.run_v2_preprocessing(df, is_train=False)
 
+        # =========【新增修正開始】=========
+        # 修正: 強制移除模型不需要的 'id' 欄位
+        if 'id' in processed_data.columns:
+            processed_data.drop(columns=['id'], inplace=True)
+        # =========【新增修正結束】=========
+        
         # 預測機率 (只取流失機率 class=1)
         probabilities = model.predict_proba(processed_data)[:, 1]
 
