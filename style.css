@@ -182,8 +182,8 @@ input:focus, select:focus {
     display: flex;
     flex-direction: column;
     gap: 30px;
-    opacity: 0.5;
-    pointer-events: none;
+    /*opacity: 0.5;*/          /* <--- 刪除這行 (不然看起來會灰灰的) */
+    /*pointer-events: none;*/  /* <--- 刪除這行 (這是導致捲軸拉不動的主因) */
     transition: 0.5s;
 }
 
