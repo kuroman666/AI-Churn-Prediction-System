@@ -47,14 +47,25 @@ async function uploadAndPredict() {
 }
 
 function renderBatchResults(data) {
+    // ★★★ 新增這行：直接彈出視窗顯示資料筆數 ★★★
+    //alert(`分析完成！後端共回傳了 ${data.length} 筆資料。`); 
+    console.log("回傳資料筆數:", data.length); // 您也可以在 F12 console 查看
+
     const section = document.getElementById('batchResultSection');
     const tbody = document.getElementById('batchResultBody');
     
     section.style.display = 'block';
     tbody.innerHTML = ''; 
 
+    // 如果資料是空的，顯示提示
+    if (data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px;">沒有資料</td></tr>';
+        return;
+    }
+
     data.forEach(row => {
         const tr = document.createElement('tr');
+        // (保持您原本的程式碼不變)
         tr.style.borderBottom = '1px solid #1e293b';
         
         const probPercent = (row.probability * 100).toFixed(1) + '%';

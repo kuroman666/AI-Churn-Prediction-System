@@ -8,32 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="bank.css">
-
-    <style>
-        /* 自訂捲軸樣式 - 優化好拉版 */
-        .table-scroll-container::-webkit-scrollbar {
-            width: 16px;  /* 1. 加寬整體感應區 (原本12px) */
-            height: 16px;
-        }
-
-        .table-scroll-container::-webkit-scrollbar-track {
-            background: #0f172a; 
-            border-radius: 4px;
-        }
-
-        .table-scroll-container::-webkit-scrollbar-thumb {
-            background-color: #475569;
-            border-radius: 10px;
-            /* 2. 使用 border 來製造透明邊界，而不是擠壓內容 */
-            border: 4px solid transparent; 
-            background-clip: content-box; /* 關鍵：讓顏色只塗在內容區，保留邊框透明 */
-        }
-
-        .table-scroll-container::-webkit-scrollbar-thumb:hover {
-            background-color: #94a3b8; /* 滑鼠移過去變亮 */
-        }
-    </style>
+    <link rel="stylesheet" href="bank_data.css">
 </head>
 <body>
     <nav class="sidebar">
@@ -77,20 +52,21 @@
             <div class="card">
                 <div class="card-header"><i class="fa-solid fa-list-check"></i> 分析結果列表</div>
                 
-                <div class="table-scroll-container" style="overflow-x: auto; max-height: 500px; overflow-y: auto;">
-                    <table style="width: 100%; border-collapse: collapse; color: #e2e8f0; font-size: 14px;">
-                        <thead style="box-shadow: 0 2px 4px rgba(0,0,0,0.3);"> 
+                <div class="table-wrapper">
+                    <table class="fl-table">
+                        <thead> 
                             <tr>
-                                <th style="padding: 12px; text-align: left; position: sticky; top: 0; z-index: 10; background-color: #1e293b;">Customer ID</th>
-                                <th style="padding: 12px; text-align: left; position: sticky; top: 0; z-index: 10; background-color: #1e293b;">Surname</th>
-                                <th style="padding: 12px; text-align: left; position: sticky; top: 0; z-index: 10; background-color: #1e293b;">流失機率</th>
-                                <th style="padding: 12px; text-align: left; position: sticky; top: 0; z-index: 10; background-color: #1e293b;">風險等級</th>
+                                <th>Customer ID</th>
+                                <th>Surname</th>
+                                <th>流失機率</th>
+                                <th>風險等級</th>
                             </tr>
                         </thead>
                         <tbody id="batchResultBody">
                             </tbody>
                     </table>
                 </div>
+                
             </div>
         </section>
     </main>
