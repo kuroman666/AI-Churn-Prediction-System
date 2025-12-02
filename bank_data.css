@@ -80,3 +80,63 @@
 .fl-table tbody tr:hover {
     background-color: #334155;
 }
+
+/* --- bank_data.css 新增樣式 --- */
+
+.filter-controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px;
+    background-color: #0f172a; /* 深色背景 */
+    border-bottom: 1px solid #334155;
+    flex-wrap: wrap; /* 手機版自動換行 */
+}
+
+.filter-controls .input-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #cbd5e1;
+    font-size: 14px;
+}
+
+.filter-controls input[type="number"] {
+    background-color: #1e293b;
+    border: 1px solid #475569;
+    color: #fff;
+    padding: 6px 10px;
+    border-radius: 4px;
+    width: 70px;
+    text-align: center;
+    font-size: 14px;
+}
+
+.filter-controls .btn-filter {
+    background-color: #2563eb; /* 藍色按鈕 */
+    color: white;
+    border: none;
+    padding: 6px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.3s;
+}
+
+.filter-controls .btn-filter:hover {
+    background-color: #1d4ed8;
+}
+
+.filter-stats {
+    margin-left: auto; /* 將統計文字推到最右邊 */
+    color: #94a3b8;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.filter-stats span.highlight {
+    color: #ef4444; /* 紅色高亮數字 */
+    font-weight: bold;
+    font-size: 16px;
+    margin: 0 4px;
+}

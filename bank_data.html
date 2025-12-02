@@ -52,6 +52,18 @@
             <div class="card">
                 <div class="card-header"><i class="fa-solid fa-list-check"></i> 分析結果列表</div>
                 
+                <div class="filter-controls">
+                    <div class="input-group">
+                        <label for="thresholdInput">篩選流失機率大於：</label>
+                        <input type="number" id="thresholdInput" value="50" min="0" max="100" step="1">
+                        <span>%</span>
+                    </div>
+                    <button class="btn-filter" onclick="filterData()">
+                        <i class="fa-solid fa-filter"></i> 執行篩選
+                    </button>
+                    <div class="filter-stats" id="filterStats">
+                        </div>
+                </div>
                 <div class="table-wrapper">
                     <table class="fl-table">
                         <thead> 

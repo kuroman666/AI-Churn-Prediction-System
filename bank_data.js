@@ -5,6 +5,9 @@ const API_BASE_URL = (window.location.hostname === '127.0.0.1' || window.locatio
     ? 'http://127.0.0.1:5000' 
     : 'https://ai-churn-prediction-system.onrender.com';
 
+// ★★★ 新增：全域變數用來儲存原始資料 ★★★
+let globalBatchData = [];
+
 async function uploadAndPredict() {
     const fileInput = document.getElementById('csvFileInput');
     const btn = document.querySelector('.btn-predict');
@@ -47,29 +50,62 @@ async function uploadAndPredict() {
 }
 
 function renderBatchResults(data) {
-    // ★★★ 新增這行：直接彈出視窗顯示資料筆數 ★★★
-    //alert(`分析完成！後端共回傳了 ${data.length} 筆資料。`); 
-    console.log("回傳資料筆數:", data.length); // 您也可以在 F12 console 查看
+    // 1. 先將後端回傳的原始資料存起來
+    globalBatchData = data;
+    
+    console.log("回傳資料筆數:", data.length);
 
     const section = document.getElementById('batchResultSection');
-    const tbody = document.getElementById('batchResultBody');
     
+    // 顯示區塊
     section.style.display = 'block';
+    setTimeout(() => {
+        section.classList.add('active'); 
+    }, 10);
+
+    // ★★★ 2. 呼叫篩選函式來渲染表格 (預設使用輸入框的值) ★★★
+    filterData();
+}
+
+// ★★★ 新增：篩選與渲染邏輯 ★★★
+function filterData() {
+    const thresholdInput = document.getElementById('thresholdInput');
+    const tbody = document.getElementById('batchResultBody');
+    const statsDiv = document.getElementById('filterStats');
+
+    // 取得使用者輸入的百分比 (例如 50)，轉為小數 (0.5)
+    let thresholdPercent = parseFloat(thresholdInput.value);
+    
+    // 防呆機制
+    if (isNaN(thresholdPercent)) thresholdPercent = 0;
+    const thresholdDecimal = thresholdPercent / 100;
+
+    // 進行篩選：找出機率 >= 門檻值的客戶
+    const filteredData = globalBatchData.filter(row => row.probability >= thresholdDecimal);
+
+    // 清空表格
     tbody.innerHTML = ''; 
 
-    // 如果資料是空的，顯示提示
-    if (data.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px;">沒有資料</td></tr>';
+    // 更新統計文字
+    statsDiv.innerHTML = `
+        篩選條件 > ${thresholdPercent}% : 
+        共有 <span class="highlight">${filteredData.length}</span> 位高風險客戶
+        (總數: ${globalBatchData.length})
+    `;
+
+    // 如果篩選後沒資料
+    if (filteredData.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px; color: #94a3b8;">沒有符合條件的客戶</td></tr>';
         return;
     }
 
-    data.forEach(row => {
+    // 渲染篩選後的資料
+    filteredData.forEach(row => {
         const tr = document.createElement('tr');
-        // (保持您原本的程式碼不變)
         tr.style.borderBottom = '1px solid #1e293b';
         
         const probPercent = (row.probability * 100).toFixed(1) + '%';
-        const isHighRisk = row.probability > 0.5;
+        const isHighRisk = row.probability > 0.5; // 風險標籤本身的定義保持不變(>50%即為高風險)，不受篩選影響
         
         const riskColor = isHighRisk ? '#ef4444' : '#10b981';
         const riskLabel = isHighRisk ? '高風險' : '低風險';
