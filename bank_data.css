@@ -1,72 +1,61 @@
-/* --- 容器設定：控制捲動範圍 --- */
+/* --- 容器設定 --- */
 .table-wrapper {
-    /* 關鍵：設定高度限制，內容超過才會出現捲軸 */
     height: 300px; 
-    overflow-y: auto;  /* 允許垂直捲動 */
-    
-    /* 建議改為 auto，避免強制隱藏導致右邊捲軸感應區變窄 */
+    overflow-y: auto;  
     overflow-x: auto;
     
-    /* 美化外觀 */
     box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
     border-radius: 8px;
-    background-color: #1e293b; /* 配合深色主題 */
+    background-color: #1e293b; 
     border: 1px solid #334155;
-
-    /* 建議加入這行：讓捲動更滑順 */
     scroll-behavior: smooth;
+    
+    /* 新增：建立堆疊環境，避免外部影響 */
+    position: relative;
+    z-index: 0;
 }
 
-/* --- 自訂捲軸樣式 (Chrome, Edge, Safari) --- */
-.table-wrapper::-webkit-scrollbar {
-    width: 10px; /* 捲軸寬度 */
-}
-
-.table-wrapper::-webkit-scrollbar-track {
-    background: #0f172a; /* 軌道底色 */
-    border-radius: 0 8px 8px 0;
-}
-
-.table-wrapper::-webkit-scrollbar-thumb {
-    background: #475569; /* 拉桿顏色 */
-    border-radius: 5px;
-    border: 2px solid #0f172a; /* 邊框讓拉桿看起來有懸浮感 */
-}
-
-.table-wrapper::-webkit-scrollbar-thumb:hover {
-    background: #64748b; /* 滑鼠移上去變亮 */
-}
+/* ★★★ 關鍵修正：暫時註解掉或刪除這段自訂捲軸樣式 ★★★ 
+   這是造成「看得到卻拉不動」的最大嫌疑犯。
+   改回預設捲軸雖然沒那麼帥，但保證能動。
+*/
+/* .table-wrapper::-webkit-scrollbar { width: 10px; }
+.table-wrapper::-webkit-scrollbar-track { background: #0f172a; ... }
+.table-wrapper::-webkit-scrollbar-thumb { background: #475569; ... }
+.table-wrapper::-webkit-scrollbar-thumb:hover { background: #64748b; }
+*/
 
 /* --- 表格樣式 --- */
 .fl-table {
     width: 100%;
     border-collapse: collapse;
     color: #cbd5e1;
-    font-size: 15px; /* 字體稍大比較好讀 */
+    font-size: 15px; 
 }
 
-/* --- 關鍵：固定標題列 (Sticky Header) --- */
+/* --- 固定標題列 --- */
 .fl-table thead th {
-    position: sticky; /* 固定定位 */
-    top: 0;           /* 黏在容器最上方 */
-    background-color: #1e293b; /* 必須設定背景色，不然捲動時文字會重疊 */
+    position: sticky; 
+    top: 0;           
+    background-color: #1e293b; 
+    
+    /* 修正：z-index 設為 2 即可 */
     z-index: 2;      
+    
     padding: 15px;
     text-align: left;
     color: #94a3b8;
     font-weight: 600;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* 標題下方陰影 */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2); 
 }
 
-/* 確保內容層級較低 */
+/* ★★★ 修正：移除這裡原本的 position: relative 和 z-index ★★★ */
 .fl-table tbody td {
     padding: 12px 15px;
     border-bottom: 1px solid #334155;
-    position: relative; 
-    z-index: 1; /* 確保內容在標題下方 */
+    /* 這裡原本的 position: relative; z-index: 1; 請刪除，回歸單純 */
 }
 
-/* 滑鼠移過每一行時的變色效果 */
 .fl-table tbody tr:hover {
     background-color: #334155;
 }
