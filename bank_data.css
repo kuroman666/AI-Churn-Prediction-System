@@ -15,15 +15,36 @@
     z-index: 0;
 }
 
-/* ★★★ 關鍵修正：暫時註解掉或刪除這段自訂捲軸樣式 ★★★ 
-   這是造成「看得到卻拉不動」的最大嫌疑犯。
-   改回預設捲軸雖然沒那麼帥，但保證能動。
-*/
-/* .table-wrapper::-webkit-scrollbar { width: 10px; }
-.table-wrapper::-webkit-scrollbar-track { background: #0f172a; ... }
-.table-wrapper::-webkit-scrollbar-thumb { background: #475569; ... }
-.table-wrapper::-webkit-scrollbar-thumb:hover { background: #64748b; }
-*/
+/* --- 自訂捲軸樣式 (Chrome, Edge, Safari) --- */
+
+/* 1. 設定捲軸本身的寬度 */
+.table-wrapper::-webkit-scrollbar {
+    width: 10px;               /* 垂直捲軸寬度 */
+    height: 10px;              /* 水平捲軸高度 (如果有的話) */
+}
+
+/* 2. 設定捲軸「軌道」的顏色 (最底層) */
+.table-wrapper::-webkit-scrollbar-track {
+    background: #0f172a;       /* 使用您主題的最深背景色 (Deep Dark) */
+    border-radius: 0 8px 8px 0; /* 配合容器圓角 */
+}
+
+/* 3. 設定捲軸「拉桿」的顏色 (可拖曳部分) */
+.table-wrapper::-webkit-scrollbar-thumb {
+    background-color: #475569; /* 使用 Slate-600 灰色，與邊框協調 */
+    border-radius: 5px;        /* 讓拉桿變圓潤 */
+    border: 2px solid #0f172a; /* 加個邊框，讓拉桿看起來變細且有懸浮感 */
+}
+
+/* 4. 滑鼠移上去時的顏色變化 */
+.table-wrapper::-webkit-scrollbar-thumb:hover {
+    background-color: #64748b; /* 改為 Slate-500 (亮一點的灰)，提供互動回饋 */
+}
+
+/* 5. (選用) 修正角落交接處 */
+.table-wrapper::-webkit-scrollbar-corner {
+    background: #0f172a;
+}
 
 /* --- 表格樣式 --- */
 .fl-table {
