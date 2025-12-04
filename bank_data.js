@@ -67,21 +67,25 @@ function renderBatchResults(data) {
     filterData();
 }
 
-// ★★★ 新增：篩選與渲染邏輯 ★★★
+// bank_data.js 中的 filterData 函式
+
+// bank_data.js
+
 function filterData() {
     const thresholdInput = document.getElementById('thresholdInput');
     const tbody = document.getElementById('batchResultBody');
     const statsDiv = document.getElementById('filterStats');
 
-    // 取得使用者輸入的百分比 (例如 50)，轉為小數 (0.5)
+    // 取得使用者輸入的百分比
     let thresholdPercent = parseFloat(thresholdInput.value);
-    
-    // 防呆機制
     if (isNaN(thresholdPercent)) thresholdPercent = 0;
     const thresholdDecimal = thresholdPercent / 100;
 
-    // 進行篩選：找出機率 >= 門檻值的客戶
+    // 1. 篩選
     const filteredData = globalBatchData.filter(row => row.probability >= thresholdDecimal);
+
+    // 2. 排序 (由大到小)
+    filteredData.sort((a, b) => b.probability - a.probability);
 
     // 清空表格
     tbody.innerHTML = ''; 
@@ -93,22 +97,28 @@ function filterData() {
         (總數: ${globalBatchData.length})
     `;
 
-    // 如果篩選後沒資料
     if (filteredData.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px; color: #94a3b8;">沒有符合條件的客戶</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:20px; color: #94a3b8;">沒有符合條件的客戶</td></tr>';
         return;
     }
 
-    // 渲染篩選後的資料
+    // 3. 渲染資料
     filteredData.forEach(row => {
         const tr = document.createElement('tr');
         tr.style.borderBottom = '1px solid #1e293b';
         
         const probPercent = (row.probability * 100).toFixed(1) + '%';
-        const isHighRisk = row.probability > 0.5; // 風險標籤本身的定義保持不變(>50%即為高風險)，不受篩選影響
+        const isHighRisk = row.probability > 0.5;
         
         const riskColor = isHighRisk ? '#ef4444' : '#10b981';
         const riskLabel = isHighRisk ? '高風險' : '低風險';
+
+        // ★★★ 處理特徵資料 (防呆：如果後端沒回傳 features，就顯示 '-') ★★★
+        // 假設後端欄位名稱為 important_features，且為陣列
+        const features = row.important_features || []; 
+        const f1 = features.length > 0 ? features[0] : '-';
+        const f2 = features.length > 1 ? features[1] : '-';
+        const f3 = features.length > 2 ? features[2] : '-';
 
         tr.innerHTML = `
             <td style="padding: 12px;">${row.customerId}</td>
@@ -119,6 +129,9 @@ function filterData() {
                     ${riskLabel}
                 </span>
             </td>
+            <td style="padding: 12px; color: #94a3b8; font-size: 14px;">${f1}</td>
+            <td style="padding: 12px; color: #94a3b8; font-size: 14px;">${f2}</td>
+            <td style="padding: 12px; color: #94a3b8; font-size: 14px;">${f3}</td>
         `;
         tbody.appendChild(tr);
     });
