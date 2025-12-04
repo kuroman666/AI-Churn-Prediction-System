@@ -58,11 +58,17 @@
                         <input type="number" id="thresholdInput" value="50" min="0" max="100" step="1">
                         <span>%</span>
                     </div>
+
+                    <div class="input-group">
+                        <label for="searchInput" style="margin-left: 10px;">搜尋：</label>
+                        <input type="text" id="searchInput" placeholder="輸入 ID 或 姓氏">
+                    </div>
                     <button class="btn-filter" onclick="filterData()">
                         <i class="fa-solid fa-filter"></i> 執行篩選
                     </button>
+                    
                     <div class="filter-stats" id="filterStats">
-                        </div>
+                    </div>
                 </div>
                 <div class="table-wrapper">
                     <table class="fl-table">

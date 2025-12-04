@@ -101,15 +101,30 @@
     font-size: 14px;
 }
 
-.filter-controls input[type="number"] {
+/* bank_data.css */
+
+/* 找到原本的 .filter-controls input[type="number"] 區塊，修改或新增以下內容 */
+
+.filter-controls input[type="number"],
+.filter-controls input[type="text"] { /* ★★★ 新增 type="text" */
     background-color: #1e293b;
     border: 1px solid #475569;
     color: #fff;
     padding: 6px 10px;
     border-radius: 4px;
+    font-size: 14px;
+}
+
+/* 設定個別寬度 */
+.filter-controls input[type="number"] {
     width: 70px;
     text-align: center;
-    font-size: 14px;
+}
+
+/* ★★★ 新增：文字輸入框寬一點，靠左對齊 ★★★ */
+.filter-controls input[type="text"] {
+    width: 150px; 
+    text-align: left;
 }
 
 .filter-controls .btn-filter {

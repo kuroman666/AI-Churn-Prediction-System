@@ -73,18 +73,37 @@ function renderBatchResults(data) {
 
 function filterData() {
     const thresholdInput = document.getElementById('thresholdInput');
+    const searchInput = document.getElementById('searchInput'); // ★★★ 取得搜尋框
     const tbody = document.getElementById('batchResultBody');
     const statsDiv = document.getElementById('filterStats');
 
-    // 取得使用者輸入的百分比
+    // 1. 取得機率門檻
     let thresholdPercent = parseFloat(thresholdInput.value);
     if (isNaN(thresholdPercent)) thresholdPercent = 0;
     const thresholdDecimal = thresholdPercent / 100;
 
-    // 1. 篩選
-    const filteredData = globalBatchData.filter(row => row.probability >= thresholdDecimal);
+    // ★★★ 2. 取得搜尋關鍵字 (轉小寫以忽略大小寫差異) ★★★
+    const searchTerm = searchInput ? searchInput.value.trim().toLowerCase() : '';
 
-    // 2. 排序 (由大到小)
+    // 3. 綜合篩選邏輯 (機率 AND (ID吻合 OR 姓氏吻合))
+    const filteredData = globalBatchData.filter(row => {
+        // 機率條件
+        const passThreshold = row.probability >= thresholdDecimal;
+        
+        // ★★★ 搜尋條件 ★★★
+        // 確保轉為字串再比對，避免 ID 是數字導致錯誤
+        const customerIdStr = String(row.customerId).toLowerCase();
+        const surnameStr = String(row.surname).toLowerCase();
+        
+        // 如果搜尋框是空的，視為通過；否則檢查是否包含關鍵字
+        const passSearch = searchTerm === '' || 
+                           customerIdStr.includes(searchTerm) || 
+                           surnameStr.includes(searchTerm);
+
+        return passThreshold && passSearch;
+    });
+
+    // 4. 排序 (由大到小)
     filteredData.sort((a, b) => b.probability - a.probability);
 
     // 清空表格
@@ -92,8 +111,8 @@ function filterData() {
 
     // 更新統計文字
     statsDiv.innerHTML = `
-        篩選條件 > ${thresholdPercent}% : 
-        共有 <span class="highlight">${filteredData.length}</span> 位高風險客戶
+        篩選條件 > ${thresholdPercent}% ${searchTerm ? ` + "${searchTerm}"` : ''} : 
+        共有 <span class="highlight">${filteredData.length}</span> 位符合
         (總數: ${globalBatchData.length})
     `;
 
@@ -102,7 +121,7 @@ function filterData() {
         return;
     }
 
-    // 3. 渲染資料
+    // 5. 渲染資料
     filteredData.forEach(row => {
         const tr = document.createElement('tr');
         tr.style.borderBottom = '1px solid #1e293b';
@@ -113,13 +132,12 @@ function filterData() {
         const riskColor = isHighRisk ? '#ef4444' : '#10b981';
         const riskLabel = isHighRisk ? '高風險' : '低風險';
 
-        // ★★★ 處理特徵資料 (防呆：如果後端沒回傳 features，就顯示 '-') ★★★
-        // 假設後端欄位名稱為 important_features，且為陣列
         const features = row.important_features || []; 
         const f1 = features.length > 0 ? features[0] : '-';
         const f2 = features.length > 1 ? features[1] : '-';
         const f3 = features.length > 2 ? features[2] : '-';
 
+        // ★★★ 如果有搜尋關鍵字，可以選用將關鍵字高亮 (這裡保持簡單，不影響渲染)
         tr.innerHTML = `
             <td style="padding: 12px;">${row.customerId}</td>
             <td style="padding: 12px;">${row.surname}</td>
