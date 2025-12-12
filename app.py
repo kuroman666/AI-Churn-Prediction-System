@@ -238,6 +238,114 @@ def predict_batch():
         print(f"Batch Prediction Error: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
+# --- 在 app.py 中新增以下函式與路由 ---
+
+@app.route('/predict_roi', methods=['POST'])
+def predict_roi():
+    global model, explainer
+    if not model:
+        load_model()
+        if not model:
+            return jsonify({'error': 'Model not loaded'}), 500
+
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file part'}), 400
+    
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({'error': 'No selected file'}), 400
+
+    try:
+        # 取得使用者設定的參數 (預設值參考 ipynb)
+        retention_cost = float(request.form.get('cost', 500.0))
+        success_rate = float(request.form.get('rate', 0.20))
+
+        # 1. 讀取與處理資料
+        df = pd.read_csv(file)
+        
+        # 保存原始識別資訊
+        ids = df['CustomerId'] if 'CustomerId' in df.columns else df.index
+        surnames = df['Surname'] if 'Surname' in df.columns else [''] * len(df)
+        
+        # 前處理
+        processed_data = FeatureEngineer.run_v2_preprocessing(df, is_train=False)
+        if 'id' in processed_data.columns:
+            processed_data.drop(columns=['id'], inplace=True)
+
+        # 2. 預測流失機率 (Churn_Prob)
+        probabilities = model.predict_proba(processed_data)[:, 1]
+
+        # 3. 計算 LTV (Lifetime Value) - 移植自 ipynb
+        # 為了計算方便，我們需要原始的 Balance, NumOfProducts 等欄位
+        # 注意：processed_data 已經被標準化或 One-hot 轉碼，建議直接用原始 df 計算 LTV 相關邏輯
+        
+        # 設定參數
+        NIM_RATE = 0.02
+        PRODUCT_PROFIT = 50.0
+        ACTIVE_CARD_PROFIT = 30.0
+        L_MAX = 10.0
+
+        # 計算 ActiveCard_Flag (邏輯：有卡且活躍)
+        active_card_flag = ((df['HasCrCard'] == 1) & (df['IsActiveMember'] == 1)).astype(int)
+
+        # 計算年利潤
+        annual_profit = (
+            (df['Balance'] * NIM_RATE) +
+            (df['NumOfProducts'] * PRODUCT_PROFIT) +
+            (active_card_flag * ACTIVE_CARD_PROFIT)
+        )
+
+        # 計算預期壽命 (Expected Lifespan = 1/p)
+        # 防止除以 0，且設定上限 L_MAX
+        expected_lifespan = np.minimum(1 / np.maximum(probabilities, 1e-6), L_MAX)
+
+        # 計算 LTV
+        ltv = annual_profit * expected_lifespan
+
+        # 4. 計算 ENR (Expected Net Revenue) 與 ROI
+        # ENR = LTV * P(churn) * Success_Rate - Cost
+        enr = (ltv * probabilities * success_rate) - retention_cost
+
+        # 5. 篩選出值得挽留的客戶 (ENR > 0)
+        results = []
+        actionable_count = 0
+        total_roi = 0.0
+        total_cost = 0.0
+
+        for i in range(len(df)):
+            if enr[i] > 0: # 只取正回報的客戶
+                actionable_count += 1
+                total_roi += enr[i]
+                total_cost += retention_cost
+                
+                results.append({
+                    'customerId': int(ids[i]),
+                    'surname': str(surnames[i]),
+                    'probability': float(probabilities[i]),
+                    'ltv': float(ltv[i]),
+                    'enr': float(enr[i])
+                })
+
+        # 排序：依據 ENR 由高到低 (最優先挽留)
+        results.sort(key=lambda x: x['enr'], reverse=True)
+
+        return jsonify({
+            'status': 'success',
+            'summary': {
+                'actionable_count': actionable_count,
+                'total_roi': total_roi,
+                'total_cost': total_cost,
+                'total_return': total_roi + total_cost,
+                'input_cost': retention_cost,
+                'input_rate': success_rate
+            },
+            'results': results # 回傳所有 ENR > 0 的列表
+        })
+
+    except Exception as e:
+        print(f"ROI Analysis Error: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port, debug=True)

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ROI 投資回報分析 | Bank AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="bank_data.css"> <style>
+        /* ROI 專用樣式 */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .kpi-card {
+            background: linear-gradient(145deg, #1e293b, #0f172a);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            text-align: center;
+        }
+        .kpi-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 10px 0;
+        }
+        .kpi-label {
+            color: var(--text-sub);
+            font-size: 14px;
+        }
+        .text-green { color: #10b981; }
+        .text-amber { color: #fbbf24; }
+    </style>
+</head>
+<body>
+    <nav class="sidebar">
+        <div class="brand">
+            <i class="fa-solid fa-layer-group"></i> Bank AI
+        </div>
+        <a href="bank.html" class="menu-item">
+            <i class="fa-solid fa-chart-pie"></i> 預測儀表板
+        </a>
+        <a href="bank_data.html" class="menu-item">
+            <i class="fa-solid fa-users"></i> 大數據分析
+        </a>
+        <a href="bank_roi.html" class="menu-item active">
+            <i class="fa-solid fa-sack-dollar"></i> ROI 決策分析
+        </a>
+        <a href="index.html" class="back-home"><i class="fa-solid fa-arrow-left"></i> 返回入口首頁</a>
+    </nav>
+
+    <main class="main-content">
+        <header>
+            <h1>ROI 最佳化決策系統</h1>
+            <p class="subtitle">結合 AI 預測與 LTV 模型，精準計算行銷挽留活動的預期投資回報。</p>
+        </header>
+
+        <section class="input-section">
+            <div class="card">
+                <div class="card-header"><i class="fa-solid fa-sliders"></i> 行銷參數設定</div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; align-items: end;">
+                    
+                    <div class="form-group">
+                        <label>上傳客戶名單 (CSV)</label>
+                        <input type="file" id="roiCsvInput" accept=".csv">
+                    </div>
+
+                    <div class="form-group">
+                        <label>單一客戶挽留成本 ($)</label>
+                        <input type="number" id="retentionCost" value="500">
+                    </div>
+
+                    <div class="form-group">
+                        <label>預期挽留成功率 (0.0 - 1.0)</label>
+                        <input type="number" id="successRate" value="0.2" step="0.01" max="1.0" min="0.0">
+                    </div>
+
+                    <button type="button" class="btn-predict" onclick="calculateROI()" style="margin-bottom: 20px;">
+                        <i class="fa-solid fa-calculator"></i> 計算最佳回報
+                    </button>
+                </div>
+                <p style="font-size: 12px; color: #64748b; margin-top: 10px;">
+                    * 系統將自動過濾掉挽留成本高於預期收益的客戶 (ENR < 0)，只針對具備正投資回報的客戶進行建議。
+                </p>
+            </div>
+        </section>
+
+        <section class="result-container" id="roiResultSection" style="display: none; margin-top: 20px;">
+            
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-label">建議挽留人數</div>
+                    <div class="kpi-value text-amber" id="kpiCount">0</div>
+                    <div class="kpi-label">Actionable Customers</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">預期總淨利 (Net ROI)</div>
+                    <div class="kpi-value text-green" id="kpiRoi">$0</div>
+                    <div class="kpi-label">Total Expected Profit</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">總投入成本</div>
+                    <div class="kpi-value" id="kpiCost" style="color: #ef4444;">$0</div>
+                    <div class="kpi-label">Marketing Budget</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">平均每人預期獲利 (ENR)</div>
+                    <div class="kpi-value" id="kpiAvgEnr" style="color: #38bdf8;">$0</div>
+                    <div class="kpi-label">Avg. Net Revenue</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <i class="fa-solid fa-list-ol"></i> 高價值挽留名單 (Top Priority)
+                    <div class="filter-stats" id="roiListStats"></div>
+                </div>
+                
+                <div class="table-wrapper">
+                    <table class="fl-table">
+                        <thead> 
+                            <tr>
+                                <th>Ranking</th>
+                                <th>Customer ID</th>
+                                <th>Surname</th>
+                                <th>流失機率</th>
+                                <th>LTV (終身價值)</th>
+                                <th>ENR (預期淨利)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="roiTableBody">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="bank_roi.js"></script>
+</body>
+</html>
