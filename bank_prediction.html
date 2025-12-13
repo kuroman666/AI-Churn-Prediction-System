@@ -147,6 +147,9 @@
                             <i class="fa-solid fa-cloud-arrow-up" style="font-size: 40px; color: var(--secondary); margin-bottom: 15px;"></i>
                             <p style="margin-bottom: 15px; color: #94a3b8;">請上傳包含客戶資料的 CSV 檔案</p>
                             <input type="file" id="csvFileInput" accept=".csv" style="margin-bottom: 20px; color: #fff; max-width: 100%;">
+                                <div style="font-size: 12px; color: #64748b; margin-top: 5px;">
+                                    * 必須包含 CustomerId, Surname, CreditScore, Geography, Gender,	Age, Tenure, Balance, NumOfProducts, HasCrCard, IsActiveMember, EstimatedSalary 欄位
+                                </div>
                             
                             <button type="button" class="btn-predict" onclick="uploadAndPredict()" style="max-width: 300px; width: 100%;">
                                 <i class="fa-solid fa-rocket"></i> 開始批次分析
