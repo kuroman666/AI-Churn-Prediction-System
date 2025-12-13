@@ -138,69 +138,65 @@
 
         </div> <hr style="border: 0; border-top: 1px solid #334155; margin: 50px 0;">
 
-        <div class="dashboard-layout">
+                <div class="batch-layout">
 
-            <div class="layout-left">
-                <section class="section-divider">
-                    <h2 class="section-title"><i class="fa-solid fa-users-viewfinder"></i> 大數據批次分析</h2>
-                </section>
-
-                <div class="card">
-                    <div class="card-header"><i class="fa-solid fa-file-csv"></i> 資料匯入 (CSV)</div>
-                    <div style="padding: 20px; text-align: center; border: 2px dashed #334155; border-radius: 8px; margin-top: 15px;">
-                        <i class="fa-solid fa-cloud-arrow-up" style="font-size: 40px; color: var(--secondary); margin-bottom: 15px;"></i>
-                        <p style="margin-bottom: 15px; color: #94a3b8;">請上傳包含客戶資料的 CSV 檔案</p>
-                        <input type="file" id="csvFileInput" accept=".csv" style="margin-bottom: 15px; color: #fff; max-width: 100%;">
-                        <br>
-                        <button type="button" class="btn-predict" onclick="uploadAndPredict()" style="max-width: 200px;">
-                            <i class="fa-solid fa-rocket"></i> 開始批次分析
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="layout-right">
-                <div id="batchResultSection" style="display: none; width: 100%;">
                     <div class="card">
-                        <div class="card-header"><i class="fa-solid fa-list-check"></i> 批次分析結果列表</div>
+                        <div class="card-header"><i class="fa-solid fa-file-csv"></i> 資料匯入 (CSV)</div>
                         
-                        <div class="filter-controls">
-                            <div class="input-group">
-                                <label for="thresholdInput">篩選機率 ></label>
-                                <input type="number" id="thresholdInput" value="50" min="0" max="100" step="1">
-                                <span>%</span>
-                            </div>
-
-                            <div class="input-group">
-                                <label for="searchInput" style="margin-left: 10px;">搜尋：</label>
-                                <input type="text" id="searchInput" placeholder="輸入 ID 或 姓氏">
-                            </div>
-                            <button class="btn-filter" onclick="filterData()">
-                                <i class="fa-solid fa-filter"></i> 執行
+                        <div class="upload-area">
+                            <i class="fa-solid fa-cloud-arrow-up" style="font-size: 40px; color: var(--secondary); margin-bottom: 15px;"></i>
+                            <p style="margin-bottom: 15px; color: #94a3b8;">請上傳包含客戶資料的 CSV 檔案</p>
+                            <input type="file" id="csvFileInput" accept=".csv" style="margin-bottom: 20px; color: #fff; max-width: 100%;">
+                            
+                            <button type="button" class="btn-predict" onclick="uploadAndPredict()" style="max-width: 300px; width: 100%;">
+                                <i class="fa-solid fa-rocket"></i> 開始批次分析
                             </button>
                         </div>
-                        <div class="filter-stats" id="filterStats" style="margin: 10px 0; padding: 0 15px;"></div>
-                        
-                        <div class="table-wrapper">
-                            <table class="fl-table">
-                                <thead> 
-                                    <tr>
-                                        <th>Customer ID</th>
-                                        <th>Surname</th>
-                                        <th>流失機率</th>
-                                        <th>風險等級</th>
-                                        <th>流失主因</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="batchResultBody">
-                                </tbody>
-                            </table>
+                    </div>
+
+                    <div id="batchResultSection" style="display: none; width: 100%;">
+                        <div class="card">
+                            <div class="card-header"><i class="fa-solid fa-list-check"></i> 批次分析結果列表</div>
+                            
+                            <div class="filter-controls">
+                                <div class="input-group">
+                                    <label for="thresholdInput">篩選機率 ></label>
+                                    <input type="number" id="thresholdInput" value="50" min="0" max="100" step="1">
+                                    <span>%</span>
+                                </div>
+
+                                <div class="input-group">
+                                    <label for="searchInput" style="margin-left: 10px;">搜尋：</label>
+                                    <input type="text" id="searchInput" placeholder="輸入 ID 或 姓氏">
+                                </div>
+                                <button class="btn-filter" onclick="filterData()">
+                                    <i class="fa-solid fa-filter"></i> 執行
+                                </button>
+                            </div>
+                            <div class="filter-stats" id="filterStats" style="margin: 10px 0; padding: 0 15px;"></div>
+                            
+                            <div class="table-wrapper">
+                                <table class="fl-table">
+                                    <thead> 
+                                        <tr>
+                                            <th>Customer ID</th>
+                                            <th>Surname</th>
+                                            <th>流失機率</th>
+                                            <th>風險等級</th>
+                                            <th>流失主因 1</th>
+                                            <th>流失主因 2</th>
+                                            <th>流失主因 3</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="batchResultBody">
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </div>
 
-        </div> </main>
+                </div> 
+            </main>
 
     <script src="bank_prediction.js"></script>
 </body>

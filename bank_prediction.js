@@ -286,7 +286,15 @@ function filterData() {
         const tr = document.createElement('tr');
         tr.style.borderBottom = '1px solid #1e293b';
         
-        const probPercent = (row.probability * 100).toFixed(1) + '%';
+        // 修改為：
+        let calcPercent = row.probability * 100;
+
+        // 如果計算結果大於 99.9，強制設為 99.9；否則維持原樣
+        if (calcPercent > 99.9) {
+            calcPercent = 99.9;
+        }
+
+        const probPercent = calcPercent.toFixed(1) + '%';
         const isHighRisk = row.probability > 0.5;
         
         const riskColor = isHighRisk ? '#ef4444' : '#10b981';
@@ -297,19 +305,24 @@ function filterData() {
         const f2 = features.length > 1 ? features[1] : '-';
         const f3 = features.length > 2 ? features[2] : '-';
 
+        // 修改 tr.innerHTML 的內容
         tr.innerHTML = `
             <td style="padding: 12px;">${row.customerId}</td>
-            <td style="padding: 12px;">${row.surname}</td>
+            
+            <td style="padding: 12px; text-align: left;">${row.surname}</td>
+            
             <td style="padding: 12px; font-weight: bold; color: ${riskColor};">${probPercent}</td>
             <td style="padding: 12px;">
                 <span style="background-color: ${riskColor}20; color: ${riskColor}; padding: 4px 8px; border-radius: 4px; font-size: 12px;">
                     ${riskLabel}
                 </span>
             </td>
-            <td style="padding: 12px; color: #94a3b8; font-size: 14px;">${f1}</td>
-            <td style="padding: 12px; color: #94a3b8; font-size: 14px;">${f2}</td>
-            <td style="padding: 12px; color: #94a3b8; font-size: 14px;">${f3}</td>
+            
+            <td style="padding: 12px; font-size: 13px; color: #94a3b8;">${f1}</td>
+            <td style="padding: 12px; font-size: 13px; color: #94a3b8;">${f2}</td>
+            <td style="padding: 12px; font-size: 13px; color: #94a3b8;">${f3}</td>
         `;
+        
         tbody.appendChild(tr);
     });
 }

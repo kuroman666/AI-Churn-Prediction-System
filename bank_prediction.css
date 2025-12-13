@@ -139,3 +139,121 @@
         flex-direction: column;
     }
 }
+
+/* --- 批次分析專用佈局 (上下排列，全寬) --- */
+.batch-layout {
+    display: flex;
+    flex-direction: column; /* 強制上下排列 */
+    gap: 30px;              /* 區塊間距 */
+    width: 100%;
+}
+
+/* 確保批次分析裡的卡片是全寬 */
+.batch-layout .card {
+    width: 100%;
+}
+
+/* 讓上傳區域的內容排版好看一點 (可選優化) */
+.upload-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 30px;
+    border: 2px dashed #334155;
+    border-radius: 8px;
+    margin-top: 15px;
+    background-color: rgba(30, 41, 59, 0.3); /* 輕微背景色區隔 */
+}
+
+/* --- 修正表格欄位對齊 (更新版) --- */
+/* 將第 2 欄 (Surname) 以及第 5, 6, 7 欄 (流失主因) 的標題與內容置中 */
+.fl-table th:nth-child(1),
+.fl-table td:nth-child(1),
+.fl-table th:nth-child(2),
+.fl-table td:nth-child(2),
+.fl-table th:nth-child(3),
+.fl-table td:nth-child(3),
+.fl-table th:nth-child(4),
+.fl-table td:nth-child(4),
+.fl-table th:nth-child(5),
+.fl-table td:nth-child(5),
+.fl-table th:nth-child(6),
+.fl-table td:nth-child(6),
+.fl-table th:nth-child(7),
+.fl-table td:nth-child(7) {
+    text-align: center !important;
+}
+
+
+
+
+/* --- 批次分析結果列表：篩選列優化 --- */
+.filter-controls {
+    display: flex;              /* 啟用彈性盒模型，讓內容變橫向 */
+    align-items: center;        /* 垂直置中 */
+    justify-content: flex-start;/* 整體靠左對齊 */
+    gap: 20px;                  /* 每個控制項之間的間距 */
+    padding: 0 15px;            /* 左右留點緩衝 */
+    margin-bottom: 20px;
+    flex-wrap: wrap;            /* 如果螢幕太小，允許自動換行 */
+}
+
+/* 確保內部的 Input 群組也是橫排且對齊 */
+.filter-controls .input-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;       /* 標籤與輸入框的距離 */
+    margin: 0;       /* 移除不必要的 margin */
+}
+
+/* 限制輸入框寬度，避免它們佔滿整行 */
+.filter-controls input {
+    width: auto !important;     /* 強制覆蓋原本的 100% */
+    min-width: 80px;            /* 設定最小寬度 */
+    max-width: 180px;           /* 設定最大寬度 */
+    height: 38px;               /* 設定統一高度 */
+    padding: 5px 10px;
+    background-color: #1e293b;  /* 確保背景色與深色主題一致 */
+    border: 1px solid #334155;
+    border-radius: 4px;
+    color: #fff;
+}
+
+/* --- 修改 [執行] 按鈕樣式：改為與背景相似的形式 (Ghost Style) --- */
+.btn-filter {
+    background-color: transparent !important; /* 背景透明 */
+    border: 1px solid #475569 !important;     /* 給予灰色細邊框 */
+    color: #94a3b8 !important;                /* 文字使用次要灰色 */
+    padding: 0 20px !important;
+    height: 38px;                             /* 高度與輸入框一致 */
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    
+    /* Flex 用於讓圖示跟文字置中 */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 0 !important; /* 修正可能原本有的上方邊距 */
+}
+
+/* 滑鼠移過去的效果 */
+.btn-filter:hover {
+    background-color: rgba(255, 255, 255, 0.05) !important; /* 微微發亮 */
+    border-color: #cbd5e1 !important; /* 邊框變亮 */
+    color: #fff !important;           /* 文字變白 */
+}
+
+/* --- 修正表格寬度與對齊 (新增) --- */
+
+/* 強制表格區塊填滿左右版面 */
+.table-wrapper {
+    width: 100%;        /* 容器寬度滿版 */
+    overflow-x: auto;   /* 保持響應式滾動功能 */
+}
+
+.fl-table {
+    width: 100% !important; /* 強制表格本體寬度滿版 */
+    table-layout: auto;     /* 讓瀏覽器自動分配欄位寬度以填滿空間 */
+}

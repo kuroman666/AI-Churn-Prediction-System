@@ -111,7 +111,9 @@ def predict():
             'EstimatedSalary': float(data.get('salary'))
         }])
         processed_data = FeatureEngineer.run_v2_preprocessing(raw_df, is_train=False)
-        probability = model.predict_proba(processed_data)[0][1]
+        # 修改後的寫法 (加入 min 限制)
+        raw_prob = float(model.predict_proba(df_final)[0][1])
+        probability = min(raw_prob, 0.999)  # 強制上限為 0.999 (99.9%)
         shap_values = explainer.shap_values(processed_data)
         if isinstance(shap_values, list): sv = shap_values[1][0]
         else: sv = shap_values[0]
@@ -153,7 +155,9 @@ def predict_batch():
         processed_data = FeatureEngineer.run_v2_preprocessing(df, is_train=False)
         if 'id' in processed_data.columns: processed_data.drop(columns=['id'], inplace=True)
         
-        probabilities = model.predict_proba(processed_data)[:, 1]
+        # 修改後的寫法
+        raw_probs = model.predict_proba(df_processed)[:, 1]
+        probabilities = np.minimum(raw_probs, 0.999) # 將所有大於 0.999 的值都設為 0.999
         shap_values_matrix = explainer.shap_values(processed_data)
         if isinstance(shap_values_matrix, list): shap_values_target = shap_values_matrix[1]
         else: shap_values_target = shap_values_matrix
