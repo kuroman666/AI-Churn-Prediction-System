@@ -11,21 +11,23 @@
 /* --- 2. 核心佈局系統 (Dashboard Layout) --- */
 .dashboard-layout {
     display: grid;
-    /* 修改重點：改為 1fr 1fr 讓左右兩欄等寬 (50% vs 50%) */
-    grid-template-columns: 1fr 1fr; 
+    grid-template-columns: 4fr 6fr; 
     gap: 30px;
-    /* 修改重點：強制讓左右兩欄的高度拉伸到一樣高 */
-    align-items: stretch; 
+    
+    /* 修改重點：改回 stretch，這樣左右兩邊的高度才會強制一樣高 */
+    align-items: stretch !important; 
+    
     width: 100%;
     margin-bottom: 20px;
 }
 
 /* --- 3. 左右欄位設定 --- */
+/* --- 3. 左右欄位設定 --- */
 .layout-left {
     display: flex;
     flex-direction: column;
     gap: 20px;
-    height: 100%; /* 確保佔滿高度 */
+    height: auto; 
 }
 
 .layout-right {
@@ -33,18 +35,19 @@
     flex-direction: column;
     gap: 25px;
     width: 100%;
-    height: 100%; /* 確保佔滿高度 */
+    /* 修改：讓它繼承 grid cell 的高度 */
+    height: 100%; 
     min-width: 0;
 }
 
 /* --- 4. 卡片與內容填滿設定 --- */
-/* 讓左右欄位內的卡片自動伸展填滿父容器高度 */
+/* 修改卡片設定 */
 .layout-left .card,
 .layout-right .card {
     width: 100%;
     box-sizing: border-box;
-    /* 關鍵：讓卡片自動長高填滿欄位 */
-    flex: 1; 
+    /* 修改重點：移除 flex: 1，避免卡片自動填滿多餘空間 */
+    flex: initial; 
     display: flex;
     flex-direction: column;
 }
@@ -56,18 +59,20 @@
 }
 
 /* --- 5. 初始狀態 Placeholder (提示面板) 樣式 --- */
+/* 設定卡片本體填滿父容器高度 */
 #predictionPlaceholder {
     display: flex;
     flex-direction: column;
+    height: 100%; /* 修改：填滿高度 */
 }
 
+/* 內容容器：負責置中 */
 .placeholder-container {
-    /* 關鍵：佔據卡片內所有剩餘空間，實現垂直置中 */
     flex: 1; 
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: center; /* 修改：垂直置中 */
     padding: 20px;
     text-align: center;
     color: #64748b;
@@ -75,20 +80,27 @@
     border-radius: 8px;
     background-color: rgba(30, 41, 59, 0.3);
     margin-top: 10px;
-    height: 100%; /* 確保高度撐開 */
+    height: 100%; 
 }
 
+/* Icon 透明度調整 */
 .placeholder-icon {
     font-size: 48px;
     margin-bottom: 20px;
     color: #475569;
-    opacity: 0.8;
+    
+    /* 修改：調低透明度 (建議 0.2) */
+    opacity: 0.9; 
 }
 
+/* 文字透明度調整 */
 .placeholder-text {
     font-size: 1.1rem;
     line-height: 1.6;
     margin: 0;
+    
+    /* 修改：新增透明度設定 */
+    opacity: 0.9; 
 }
 
 /* --- 6. 結果區塊 (預測結果 + SHAP) --- */

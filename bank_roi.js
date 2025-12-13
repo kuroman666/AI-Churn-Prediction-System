@@ -83,10 +83,6 @@ function updateSingleResultUI(prob, ltv, enr) {
     document.getElementById('singleResultEmpty').style.display = 'none';
     document.getElementById('singleResultData').style.display = 'block';
 
-    // ★★★ 修改：移除 ID 與 Surname 的顯示邏輯 ★★★
-    // document.getElementById('res_id').innerText = ... (已刪除)
-    // document.getElementById('res_surname').innerText = ... (已刪除)
-
     const currencyFmt = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
     const probPercent = (prob * 100).toFixed(1);
 
@@ -94,26 +90,38 @@ function updateSingleResultUI(prob, ltv, enr) {
     document.getElementById('res_ltv').innerText = currencyFmt.format(ltv);
     
     const enrEl = document.getElementById('res_enr');
-    enrEl.innerText = currencyFmt.format(enr);
-
+    
+    // 設定數值文字
+    // 這裡使用 Math.abs() 確保顯示時如果是負數也會有正確的格式，但下方我們手動加了 "+" 或 "-" 符號
+    // 為了簡單，直接用 formatter 即可，符號由邏輯控制
+    
     document.getElementById('res_prob_bar').style.width = `${probPercent}%`;
 
     const recBox = document.getElementById('res_recommendation');
     
+    // ★★★ 重點修改區域 ★★★
     if (enr > 0) {
-        enrEl.className = 'm-value text-green';
+        // 正數：顯示綠色
         enrEl.innerText = `+ ${currencyFmt.format(enr)}`;
+        
+        // 強制修改 style.color 以覆蓋 HTML 中的 inline style
+        enrEl.style.color = '#10b981'; 
+        
         recBox.style.background = 'rgba(16, 185, 129, 0.1)';
         recBox.style.borderColor = 'rgba(16, 185, 129, 0.3)';
         recBox.innerHTML = `<i class="fa-solid fa-check-circle" style="color:#10b981;"></i> <b>建議挽留</b><br>預期淨利為正，具備投資價值。`;
     } else {
-        enrEl.className = 'm-value text-red';
+        // 負數：顯示紅色
+        enrEl.innerText = currencyFmt.format(enr); // 負數通常 formatter 會自己帶負號，或者您想強調可手動加
+        
+        // 強制修改 style.color 以覆蓋 HTML 中的 inline style
+        enrEl.style.color = '#ef4444'; 
+        
         recBox.style.background = 'rgba(239, 68, 68, 0.1)';
         recBox.style.borderColor = 'rgba(239, 68, 68, 0.3)';
         recBox.innerHTML = `<i class="fa-solid fa-triangle-exclamation" style="color:#ef4444;"></i> <b>不建議挽留</b><br>預期淨利為負，成本高於回收價值。`;
     }
 }
-
 // ==========================================
 // PART 2: 批次 CSV 分析
 // ==========================================

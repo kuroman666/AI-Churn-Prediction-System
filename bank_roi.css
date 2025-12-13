@@ -1,24 +1,25 @@
-/* bank_roi.css */
+/* bank_roi.css - 修正版：與 Prediction 頁面間距完全一致 */
 
-/* --- 關鍵修正：確保主內容區塊不受 Sidebar 影響，強制填滿 --- */
+/* --- 主內容設定 --- */
+/* ★★★ 修正重點：將 padding 從 30px 改為 40px，與 bank_prediction.css 一致 ★★★ */
 .main-content {
     display: block !important; 
     width: 100%;
     max-width: 100%;
-    padding: 30px;
-    box-sizing: border-box; /* 確保 padding 不會撐大寬度 */
+    padding: 40px; /* 原本是 30px，導致標題比較高、卡片比較寬 */
+    box-sizing: border-box;
 }
 
 /* --- 1. 上方區塊 (Top Section) --- */
+/* 由於 HTML 已改用 dashboard-layout，這裡的舊樣式其實已不影響佈局，但在 RWD 時可能會有殘留影響，建議保留但確保不會干擾 */
 .roi-top-section {
     display: grid;
-    grid-template-columns: 1fr 1fr; /* 左右各一半 */
+    grid-template-columns: 4fr 6fr; 
     gap: 30px;
     margin-bottom: 30px;
-    align-items: stretch; /* 等高 */
+    align-items: stretch; 
 }
 
-/* RWD: 螢幕小於 1000px 時變為上下堆疊 */
 @media (max-width: 1000px) {
     .roi-top-section {
         grid-template-columns: 1fr;
@@ -32,9 +33,16 @@
     padding: 25px;
     border: 1px solid #334155;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    height: 100%; /* 讓卡片填滿 Grid 高度 */
+    /* flex: 1;  <-- 移除這個，避免在某些 flex 容器中被強制拉長 */
     display: flex;
     flex-direction: column;
+}
+
+/* 確保 ROI 頁面的卡片在 dashboard-layout 中高度填滿 */
+/* 因為在 bank_prediction.css 中有針對 .layout-right .card 設定 flex: initial */
+/* 但 ROI 的右側單筆結果需要填滿，所以這裡強制加回 height: 100% */
+.layout-right #singleResultContainer {
+    height: 100%;
 }
 
 .card-header {
@@ -49,7 +57,11 @@
     gap: 10px;
 }
 
-/* 左側表單樣式 */
+/* --- 表單樣式 --- */
+.form-group {
+    margin-bottom: 15px;
+}
+
 .form-row {
     display: flex;
     gap: 15px;
@@ -57,7 +69,7 @@
 }
 .form-col {
     flex: 1;
-    min-width: 0; /* 防止 Flex 子元素溢出 */
+    min-width: 0;
 }
 
 input, select {
@@ -68,7 +80,9 @@ input, select {
     padding: 10px;
     border-radius: 6px;
     font-size: 14px;
+    box-sizing: border-box;
 }
+
 input:focus, select:focus {
     border-color: #38bdf8;
     outline: none;
@@ -80,29 +94,10 @@ label {
     font-size: 13px;
 }
 
-.checkbox-container {
-    display: flex;
-    flex-direction: row; /* 橫向排列 Checkbox */
-    align-items: center;
-    gap: 15px;
-    padding-top: 28px; /* 對齊輸入框 */
-}
-.checkbox-container label {
-    margin-bottom: 0;
-    cursor: pointer;
-    color: #e2e8f0;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-.checkbox-container input {
-    width: auto;
-    margin: 0;
-}
-
+/* 按鈕樣式 */
 .btn-single {
     width: 100%;
-    margin-top: 10px;
+    margin-top: 20px;
     background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
     padding: 12px;
     border: none;
@@ -114,33 +109,48 @@ label {
 }
 .btn-single:hover { opacity: 0.9; }
 
-/* 右側結果樣式 */
-.result-card-single {
-    min-height: 400px;
-}
-.single-result-placeholder {
+/* --- 右側結果樣式 --- */
+/* Placeholder 樣式直接沿用 bank_prediction.css，此處僅微調內容 */
+.placeholder-container {
+    width: 100%;
     flex: 1;
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
-    color: #64748b;
+    justify-content: center;
+    padding: 20px;
     text-align: center;
+    color: #64748b;
+    border: 2px dashed #334155;
+    border-radius: 8px;
+    background-color: rgba(30, 41, 59, 0.3);
+    box-sizing: border-box;
 }
-.single-result-placeholder i { font-size: 48px; margin-bottom: 15px; }
 
+.placeholder-icon {
+    font-size: 48px;
+    margin-bottom: 20px;
+    color: #475569;
+    opacity: 0.9;
+}
+
+.placeholder-text {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin: 0;
+    opacity: 0.9;
+}
+
+/* 結果內容動畫 */
 .single-result-content {
     animation: fadeIn 0.5s ease;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
 }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-.result-header {
-    text-align: center;
-    margin-bottom: 25px;
-}
-.result-header h3 { margin: 0; font-size: 24px; color: #fff; }
-.id-badge { background: #334155; padding: 2px 10px; border-radius: 12px; font-size: 12px; color: #cbd5e1; }
-
+/* 指標與圖表樣式 */
 .metric-box { margin-bottom: 25px; }
 .metric-value-large { font-size: 36px; font-weight: bold; color: #fff; margin: 5px 0; }
 .metric-bar-bg { background: #334155; height: 8px; border-radius: 4px; overflow: hidden; }
@@ -163,7 +173,6 @@ label {
 .m-value { font-size: 20px; font-weight: bold; color: #fff; }
 .text-blue { color: #38bdf8; }
 .text-green { color: #10b981 !important; }
-.text-red { color: #ef4444 !important; }
 
 .recommendation-box {
     padding: 15px;
@@ -173,14 +182,10 @@ label {
     color: #e0f2fe;
     font-size: 14px;
     line-height: 1.5;
+    margin-top: auto;
 }
 
-/* --- 2. 中段區塊 (Middle Section) --- */
-.roi-middle-section {
-    width: 100%;
-    margin-bottom: 30px;
-}
-
+/* --- 批次分析區塊 (Batch Section) --- */
 .batch-controls {
     display: flex;
     flex-wrap: wrap;
@@ -192,7 +197,7 @@ label {
     min-width: 200px;
 }
 .upload-group {
-    flex: 2; /* CSV 上傳區塊大一點 */
+    flex: 2;
     min-width: 300px;
 }
 .file-action-row {
@@ -211,10 +216,7 @@ label {
 }
 .btn-batch:hover { background-color: #38bdf8; color: #fff; }
 
-/* --- 3. 下方區塊 (Bottom Section) --- */
-.roi-bottom-section {
-    width: 100%;
-}
+/* KPI 區塊 */
 .kpi-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -233,6 +235,7 @@ label {
 .text-amber { color: #fbbf24; }
 .text-danger { color: #ef4444; }
 
+/* 表格樣式 */
 .table-header-row {
     display: flex;
     justify-content: space-between;
@@ -244,17 +247,5 @@ label {
 .fl-table { width: 100%; border-collapse: collapse; min-width: 800px; }
 .fl-table th, .fl-table td { padding: 12px; text-align: center; border-bottom: 1px solid #334155; color: #cbd5e1; }
 .fl-table th { background: #0f172a; color: #94a3b8; }
-
-/* --- 表格欄位顏色優化 --- */
-
-/* 1. 將第 5 欄 (LTV) 設定為分析結果的藍色 */
-.fl-table td:nth-child(5) {
-    color: #38bdf8;     /* 對應 .text-blue 的顏色 */
-    font-weight: bold;  /* 加粗讓數字更清晰，與上方卡片風格一致 */
-}
-
-/* 2. 將第 6 欄 (ENR) 設定為分析結果的綠色 */
-.fl-table td:nth-child(6) {
-    color: #10b981 !important;  /* <--- 加上 !important 強制變成綠色 */
-    font-weight: bold;
-}
+.fl-table td:nth-child(5) { color: #38bdf8; font-weight: bold; }
+.fl-table td:nth-child(6) { color: #10b981 !important; font-weight: bold; }
