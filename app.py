@@ -112,7 +112,7 @@ def predict():
         }])
         processed_data = FeatureEngineer.run_v2_preprocessing(raw_df, is_train=False)
         # 修改後的寫法 (加入 min 限制)
-        raw_prob = float(model.predict_proba(df_final)[0][1])
+        raw_prob = float(model.predict_proba(processed_data)[0][1])
         probability = min(raw_prob, 0.999)  # 強制上限為 0.999 (99.9%)
         shap_values = explainer.shap_values(processed_data)
         if isinstance(shap_values, list): sv = shap_values[1][0]
