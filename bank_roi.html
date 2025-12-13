@@ -9,7 +9,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="bank_roi.css"> </head>
+    <link rel="stylesheet" href="bank_roi.css"> 
+</head>
 <body>
     <nav class="sidebar">
         <div class="brand">
@@ -27,102 +28,201 @@
     <main class="main-content">
         <header>
             <h1>ROI 最佳化決策系統</h1>
-            <p class="subtitle">結合 AI 預測與 LTV 模型，精準計算行銷挽留活動的預期投資回報。</p>
+            <p class="subtitle">結合 AI 預測與 LTV 模型，精準計算單一客戶或批次名單的預期投資回報。</p>
         </header>
 
-        <div class="roi-layout">
+        <div class="roi-top-section">
             
-            <section class="input-section">
-                <div class="card settings-card">
-                    <h2><i class="fa-solid fa-sliders"></i> 行銷參數設定</h2>
+            <div class="card">
+                <div class="card-header"><i class="fa-solid fa-user-pen"></i> 單筆即時診斷</div>
+                <form id="singleRoiForm">
                     
-                    <div class="form-group">
-                        <label for="roiCsvInput">上傳客戶名單 (CSV)</label>
-                        <input type="file" id="roiCsvInput" accept=".csv">
-                        <div style="font-size: 12px; color: #64748b; margin-top: 5px;">
-                            * 必須包含 CustomerId, Surname, CreditScore, Geography, Gender,	Age, Tenure, Balance, NumOfProducts, HasCrCard, IsActiveMember, EstimatedSalary 欄位
+                    <div class="form-row" style="background: rgba(59, 130, 246, 0.1); padding: 10px; border-radius: 8px; border: 1px dashed rgba(59, 130, 246, 0.4);">
+                        <div class="form-col">
+                            <label style="color: #60a5fa;">單一客戶挽留成本 ($)</label>
+                            <input type="number" id="s_cost" value="500">
+                        </div>
+                        <div class="form-col">
+                            <label style="color: #60a5fa;">預期挽留成功率 (0-1)</label>
+                            <input type="number" id="s_rate" value="0.2" step="0.1" max="1.0" min="0.0">
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="retentionCost">單一客戶挽留成本 ($)</label>
-                        <input type="number" id="retentionCost" value="500" placeholder="例如：500">
+                    <div class="form-row">
+                        <div class="form-col">
+                            <label>信用分數</label>
+                            <input type="number" id="s_creditScore" value="619">
+                        </div>
+                        <div class="form-col">
+                            <label>預估薪資</label>
+                            <input type="number" id="s_salary" value="101348">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-col">
+                            <label>地理位置</label>
+                            <select id="s_geography">
+                                <option value="France">France</option>
+                                <option value="Germany">Germany</option>
+                                <option value="Spain">Spain</option>
+                            </select>
+                        </div>
+                        <div class="form-col">
+                            <label>性別</label>
+                            <select id="s_gender">
+                                <option value="Female">Female</option>
+                                <option value="Male">Male</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-col"><label>年齡</label><input type="number" id="s_age" value="42"></div>
+                        <div class="form-col"><label>往來年資</label><input type="number" id="s_tenure" value="2"></div>
                     </div>
 
                     <div class="form-group">
-                        <label for="successRate">預期挽留成功率 (0.0 - 1.0)</label>
-                        <input type="number" id="successRate" value="0.2" step="0.1" max="1.0" min="0.0" placeholder="例如：0.2">
+                        <label>帳戶餘額 (Balance)</label>
+                        <input type="number" id="s_balance" value="0">
                     </div>
 
-                    <button class="btn-predict" onclick="calculateROI()">
-                        <i class="fa-solid fa-calculator"></i> 計算最佳回報
+                    <div class="form-row">
+                        <div class="form-col">
+                            <label>產品數量</label>
+                            <select id="s_numOfProducts">
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                            </select>
+                        </div>
+                        <div class="form-col checkbox-container">
+                            <label><input type="checkbox" id="s_hasCrCard" checked> 持有信用卡</label>
+                            <label><input type="checkbox" id="s_isActiveMember" checked> 活躍會員</label>
+                        </div>
+                    </div>
+
+                    <button type="button" class="btn-predict btn-single" onclick="calculateSingleROI()">
+                        <i class="fa-solid fa-calculator"></i> 計算單筆 ROI
                     </button>
+                </form>
+            </div>
 
-                    <div style="margin-top: 20px; font-size: 13px; color: #64748b; line-height: 1.5;">
-                        <i class="fa-solid fa-circle-info"></i> 系統將自動過濾挽留成本高於預期收益的客戶 (ENR < 0)，只針對具備正投資回報的客戶進行建議。
-                    </div>
-                </div>
-            </section>
-
-            <section class="results-panel" id="roiResultSection" style="display: none;">
+            <div class="card result-card-single">
+                <div class="card-header"><i class="fa-solid fa-bullseye"></i> 分析結果</div>
                 
-                <div class="kpi-grid">
-                    <div class="kpi-card">
-                        <div class="kpi-label">建議挽留人數</div>
-                        <div class="kpi-value text-amber" id="kpiCount">0</div>
-                        <div class="kpi-subtext">Actionable Customers</div>
-                    </div>
-                    <div class="kpi-card">
-                        <div class="kpi-label">預期總淨利 (Net ROI)</div>
-                        <div class="kpi-value text-green" id="kpiRoi">$0.00</div>
-                        <div class="kpi-subtext">Total Expected Profit</div>
-                    </div>
-                    <div class="kpi-card">
-                        <div class="kpi-label">總投入成本</div>
-                        <div class="kpi-value text-danger" style="color: #ef4444;" id="kpiCost">$0.00</div>
-                        <div class="kpi-subtext">Marketing Budget</div>
-                    </div>
-                    <div class="kpi-card">
-                        <div class="kpi-label">平均每人預期獲利 (ENR)</div>
-                        <div class="kpi-value text-blue" id="kpiAvgEnr">$0.00</div>
-                        <div class="kpi-subtext">Avg. Net Revenue</div>
-                    </div>
+                <div class="single-result-placeholder" id="singleResultEmpty">
+                    <i class="fa-solid fa-chart-simple"></i>
+                    <p>請輸入左側資料並點擊計算<br>以查看 LTV 與 ROI 預測</p>
                 </div>
 
-                <div class="card">
-                    <div class="table-header-row">
-                        <div class="table-title">
-                            <i class="fa-solid fa-list-ol" style="color: var(--secondary);"></i> 
-                            高價值挽留名單 (Top Priority)
-                            <span id="roiListStats" style="font-size: 14px; color: var(--text-sub); margin-left: 10px; font-weight: normal;">(共 0 筆)</span>
+                <div class="single-result-content" id="singleResultData" style="display: none;">
+                    
+                    <div class="metric-box" style="margin-top: 20px;">
+                        <div class="metric-label">流失機率 (Churn Prob.)</div>
+                        <div class="metric-value-large" id="res_prob">--%</div>
+                        <div class="metric-bar-bg"><div class="metric-bar-fill" id="res_prob_bar" style="width: 0%"></div></div>
+                    </div>
+
+                    <div class="metric-grid-row">
+                        <div class="metric-card-small">
+                            <div class="m-label">LTV (終身價值)</div>
+                            <div class="m-value text-blue" id="res_ltv">$0</div>
                         </div>
-                        
-                        <div class="search-box">
-                            <input type="text" id="tableSearchInput" 
-                                   placeholder="🔍 搜尋 ID 或姓氏..." 
-                                   onkeyup="filterRoiTable()">
+                        <div class="metric-card-small">
+                            <div class="m-label">ENR (預期淨利)</div>
+                            <div class="m-value" id="res_enr">$0</div>
                         </div>
                     </div>
-                    
-                    <div class="table-wrapper">
-                        <table class="fl-table">
-                            <thead> 
-                                <tr>
-                                    <th>Ranking</th>
-                                    <th>Customer ID</th>
-                                    <th>Surname</th>
-                                    <th>流失機率</th>
-                                    <th>LTV (終身價值)</th>
-                                    <th>ENR (預期淨利)</th>
-                                </tr>
-                            </thead>
-                            <tbody id="roiTableBody">
-                                </tbody>
-                        </table>
+
+                    <div class="recommendation-box" id="res_recommendation">
                     </div>
                 </div>
-            </section>
+            </div>
         </div>
+
+        <div class="roi-middle-section">
+            <div class="card">
+                <div class="card-header"><i class="fa-solid fa-sliders"></i> 批次匯入參數設定</div>
+                
+                <div class="batch-controls">
+                    <div class="control-group">
+                        <label>單一客戶挽留成本 ($)</label>
+                        <input type="number" id="retentionCost" value="500">
+                    </div>
+                    <div class="control-group">
+                        <label>預期挽留成功率 (0-1)</label>
+                        <input type="number" id="successRate" value="0.2" step="0.1" max="1.0" min="0.0">
+                    </div>
+
+                    <div class="control-group upload-group">
+                        <label>上傳客戶名單 CSV (批次分析)</label>
+                        <div class="file-action-row">
+                            <input type="file" id="roiCsvInput" accept=".csv">
+                            <button class="btn-predict btn-batch" onclick="calculateROI()">
+                                <i class="fa-solid fa-rocket"></i> 執行批次分析
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div style="font-size: 13px; color: #64748b; margin-top: 10px; padding: 0 10px;">
+                    * 此處設定僅應用於下方的批次分析，上方單筆診斷請直接於該區塊輸入參數。
+                </div>
+            </div>
+        </div>
+
+        <div class="roi-bottom-section" id="roiResultSection" style="display: none;">
+            
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-label">建議挽留人數</div>
+                    <div class="kpi-value text-amber" id="kpiCount">0</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">預期總淨利 (Net ROI)</div>
+                    <div class="kpi-value text-green" id="kpiRoi">$0</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">總投入成本</div>
+                    <div class="kpi-value text-danger" id="kpiCost">$0</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">平均每人預期獲利</div>
+                    <div class="kpi-value text-blue" id="kpiAvgEnr">$0</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="table-header-row">
+                    <div class="table-title">
+                        <i class="fa-solid fa-list-ol"></i> 高價值挽留名單 (Top Priority)
+                        <span id="roiListStats" class="stats-text">(共 0 筆)</span>
+                    </div>
+                    <div class="search-box">
+                        <input type="text" id="tableSearchInput" placeholder="🔍 搜尋 ID 或姓氏..." onkeyup="filterRoiTable()">
+                    </div>
+                </div>
+                
+                <div class="table-wrapper">
+                    <table class="fl-table">
+                        <thead> 
+                            <tr>
+                                <th>Ranking</th>
+                                <th>Customer ID</th>
+                                <th>Surname</th>
+                                <th>流失機率</th>
+                                <th>LTV (終身價值)</th>
+                                <th>ENR (預期淨利)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="roiTableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
     </main>
 
     <script src="bank_roi.js"></script>
