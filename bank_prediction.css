@@ -220,9 +220,7 @@
 .fl-table th:nth-child(2), .fl-table td:nth-child(2), /* Surname */
 .fl-table th:nth-child(3), .fl-table td:nth-child(3), /* 機率 */
 .fl-table th:nth-child(4), .fl-table td:nth-child(4), /* 風險 */
-.fl-table th:nth-child(5), .fl-table td:nth-child(5), /* 主因1 */
-.fl-table th:nth-child(6), .fl-table td:nth-child(6), /* 主因2 */
-.fl-table th:nth-child(7), .fl-table td:nth-child(7)  /* 主因3 */
+.fl-table th:nth-child(5), .fl-table td:nth-child(5), /* 主因 */
 {
     text-align: center !important;
 }

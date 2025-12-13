@@ -406,12 +406,12 @@ function filterData() {
 
         // ★★★ 修正位置：特徵處理程式碼必須放在這裡！ ★★★
         // 因為這裡已經進入迴圈，所以讀得到 row.important_features
-        const features = row.important_features || []; 
+        //const features = row.important_features || []; 
         
         // 為了優化效能，批次時不回傳特徵，改顯示提示文字
-        const f1 = features.length > 0 ? features[0] : '<span style="color:#64748b; font-size:12px; cursor:pointer;">點擊ID查看</span>';
-        const f2 = features.length > 1 ? features[1] : '-';
-        const f3 = features.length > 2 ? features[2] : '-';
+        //const f1 = features.length > 0 ? features[0] : '<span style="color:#64748b; font-size:12px; cursor:pointer;">點擊ID查看</span>';
+        //const f2 = features.length > 1 ? features[1] : '-';
+        //const f3 = features.length > 2 ? features[2] : '-';
         // ★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
 
         tr.innerHTML = `
