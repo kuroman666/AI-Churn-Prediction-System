@@ -1,7 +1,6 @@
-/* bank_prediction.css */
+/* bank_prediction.css - 完整修正版 */
 
-/* --- 關鍵修正 1: 覆蓋 style.css 的全域設定 --- */
-/* 這是讓右側能填滿的關鍵，解除原本的主內容 Grid 限制 */
+/* --- 1. 全局設定與覆蓋 --- */
 .main-content {
     display: block !important; 
     width: 100%;
@@ -9,122 +8,142 @@
     padding: 40px;
 }
 
-/* --- 佈局系統 (Dashboard Layout) --- */
+/* --- 2. 核心佈局系統 (Dashboard Layout) --- */
 .dashboard-layout {
     display: grid;
-    /* 左側固定 320px，右側自動填滿 (使用 minmax 防止溢出) */
-    grid-template-columns: 320px minmax(0, 1fr); 
-    gap: 30px; /* 增加一點間距讓畫面更舒適 */
-    align-items: start;
+    /* 修改重點：改為 1fr 1fr 讓左右兩欄等寬 (50% vs 50%) */
+    grid-template-columns: 1fr 1fr; 
+    gap: 30px;
+    /* 修改重點：強制讓左右兩欄的高度拉伸到一樣高 */
+    align-items: stretch; 
     width: 100%;
-    margin-bottom: 20px; /* 增加一點底部距離，避免區塊太擠 */
+    margin-bottom: 20px;
 }
 
-/* 左側欄位 */
+/* --- 3. 左右欄位設定 --- */
 .layout-left {
     display: flex;
     flex-direction: column;
     gap: 20px;
+    height: 100%; /* 確保佔滿高度 */
 }
 
-/* --- 關鍵修正 2: 右側欄位容器 --- */
 .layout-right {
     display: flex;
-    flex-direction: column; /* 確保內部區塊上下排列 */
+    flex-direction: column;
     gap: 25px;
-    width: 100%;            /* 強制佔滿剩餘空間 */
-    min-width: 0;          /* 防止 Flex 子元素內容過長導致破版 */
+    width: 100%;
+    height: 100%; /* 確保佔滿高度 */
+    min-width: 0;
 }
 
-/* --- 關鍵修正 3: 結果區塊 (預測結果 + SHAP) --- */
+/* --- 4. 卡片與內容填滿設定 --- */
+/* 讓左右欄位內的卡片自動伸展填滿父容器高度 */
+.layout-left .card,
+.layout-right .card {
+    width: 100%;
+    box-sizing: border-box;
+    /* 關鍵：讓卡片自動長高填滿欄位 */
+    flex: 1; 
+    display: flex;
+    flex-direction: column;
+}
+
+/* 特別針對「預測結果」區塊 (因為它裡面有兩張卡片，不需要強制拉伸，依內容為主) */
+.layout-right .result-grid .card {
+    flex: initial; /* 結果卡片維持自然高度 */
+    height: auto;
+}
+
+/* --- 5. 初始狀態 Placeholder (提示面板) 樣式 --- */
+#predictionPlaceholder {
+    display: flex;
+    flex-direction: column;
+}
+
+.placeholder-container {
+    /* 關鍵：佔據卡片內所有剩餘空間，實現垂直置中 */
+    flex: 1; 
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    text-align: center;
+    color: #64748b;
+    border: 2px dashed #334155;
+    border-radius: 8px;
+    background-color: rgba(30, 41, 59, 0.3);
+    margin-top: 10px;
+    height: 100%; /* 確保高度撐開 */
+}
+
+.placeholder-icon {
+    font-size: 48px;
+    margin-bottom: 20px;
+    color: #475569;
+    opacity: 0.8;
+}
+
+.placeholder-text {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* --- 6. 結果區塊 (預測結果 + SHAP) --- */
 .result-grid {
     display: grid;
-    /* 強制單欄排列，讓卡片上下堆疊 */
     grid-template-columns: 1fr; 
     gap: 25px;
     width: 100%;
+    /* 當結果出現時，讓它自然流動，不需要強制 100% 高度，以免圖表變形 */
+    height: auto; 
 }
 
-/* 強制右側所有卡片填滿寬度 */
-.layout-right .card {
-    width: 100%;
-    box-sizing: border-box; 
-}
-
-/* 批次分析結果區塊也要填滿 */
-#batchResultSection {
-    width: 100%;
-    display: none; /* 預設隱藏，由 JS 開啟 */
-}
-
-/* --- 預測結果圖表 (甜甜圈圖) --- */
-/* 修改後：請將 center 改為 stretch */
+/* --- 7. 預測結果圖表 (甜甜圈圖) --- */
 .score-card {
     display: flex;
     flex-direction: column;
-    align-items: stretch; /* 改為 stretch，讓標題能填滿寬度並靠左 */
+    align-items: stretch;
     width: 100%;
 }
 
 .score-card canvas {
-    /* 圖表本身限制最大寬度，避免變成巨大的橢圓，但卡片背景是滿版的 */
     max-width: 350px; 
     width: 100%;
     margin: 0 auto;
     display: block;
 }
 
-/* --- SHAP 圖表容器 --- */
-.shap-container {
-    width: 100%;
-    min-height: 400px; 
-    position: relative;
-}
-
-/* --- RWD 手機版適配 --- */
-@media (max-width: 1000px) {
-    .dashboard-layout {
-        grid-template-columns: 1fr; /* 變回單欄，左右變上下 */
-    }
-    
-    .main-content {
-        padding: 20px; /* 手機版內縮減少 */
-    }
-}
-
-/* --- 針對縮短版面的 score-card 優化 --- */
-
-/* 讓內部內容變為橫向排列 */
+/* 針對縮短版面的 score-card 優化 */
 .score-layout-row {
     display: flex;
-    flex-direction: row;       /* 水平排列 */
-    align-items: center;       /* 垂直置中 */
-    justify-content: center;   /* 水平置中 */
-    gap: 10px;                 /* 左右間距 */
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
     width: 100%;
     padding: 0 10px;
 }
 
-/* 左側文字區塊設定 */
 .score-info {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    flex: 1;                   /* 佔據一半空間 */
+    flex: 1;
 }
 
-/* 右側圖表區塊設定 (限制高度與寬度) */
 .score-chart-container {
-    flex: 1;                   /* 佔據一半空間 */
+    flex: 1;
     display: flex;
     justify-content: center;
     align-items: center;
-    max-width: 160px;          /* 限制最大寬度 */
-    height: 160px;             /* 限制高度，確保版面縮短 */
+    max-width: 160px;
+    height: 160px;
 }
 
-/* 覆寫原本的 canvas 設定，讓它適應較小的容器 */
 .score-card canvas {
     max-width: 100% !important;
     max-height: 100% !important;
@@ -133,27 +152,31 @@
     margin: 0 !important;
 }
 
-/* RWD: 手機版若太窄，可以自動變回直排 (可選) */
-@media (max-width: 400px) {
-    .score-layout-row {
-        flex-direction: column;
-    }
+/* --- 8. SHAP 圖表容器 --- */
+.shap-container {
+    width: 100%;
+    min-height: 400px; 
+    position: relative;
 }
 
-/* --- 批次分析專用佈局 (上下排列，全寬) --- */
+/* --- 9. 批次分析專用佈局 --- */
 .batch-layout {
     display: flex;
-    flex-direction: column; /* 強制上下排列 */
-    gap: 30px;              /* 區塊間距 */
+    flex-direction: column;
+    gap: 30px;
     width: 100%;
 }
 
-/* 確保批次分析裡的卡片是全寬 */
 .batch-layout .card {
     width: 100%;
+    flex: initial; /* 批次區塊不需要強制拉伸高度 */
 }
 
-/* 讓上傳區域的內容排版好看一點 (可選優化) */
+#batchResultSection {
+    width: 100%;
+    display: none;
+}
+
 .upload-area {
     display: flex;
     flex-direction: column;
@@ -162,107 +185,40 @@
     border: 2px dashed #334155;
     border-radius: 8px;
     margin-top: 15px;
-    background-color: rgba(30, 41, 59, 0.3); /* 輕微背景色區隔 */
+    background-color: rgba(30, 41, 59, 0.3);
 }
 
-/* --- 修正表格欄位對齊 (更新版) --- */
-/* 將第 2 欄 (Surname) 以及第 5, 6, 7 欄 (流失主因) 的標題與內容置中 */
-.fl-table th:nth-child(1),
-.fl-table td:nth-child(1),
-.fl-table th:nth-child(2),
-.fl-table td:nth-child(2),
-.fl-table th:nth-child(3),
-.fl-table td:nth-child(3),
-.fl-table th:nth-child(4),
-.fl-table td:nth-child(4),
-.fl-table th:nth-child(5),
-.fl-table td:nth-child(5),
-.fl-table th:nth-child(6),
-.fl-table td:nth-child(6),
-.fl-table th:nth-child(7),
-.fl-table td:nth-child(7) {
-    text-align: center !important;
-}
-
-
-
-
-/* --- 批次分析結果列表：篩選列優化 --- */
-.filter-controls {
-    display: flex;              /* 啟用彈性盒模型，讓內容變橫向 */
-    align-items: center;        /* 垂直置中 */
-    justify-content: flex-start;/* 整體靠左對齊 */
-    gap: 20px;                  /* 每個控制項之間的間距 */
-    padding: 0 15px;            /* 左右留點緩衝 */
-    margin-bottom: 20px;
-    flex-wrap: wrap;            /* 如果螢幕太小，允許自動換行 */
-}
-
-/* 確保內部的 Input 群組也是橫排且對齊 */
-.filter-controls .input-group {
-    display: flex;
-    align-items: center;
-    gap: 10px;       /* 標籤與輸入框的距離 */
-    margin: 0;       /* 移除不必要的 margin */
-}
-
-/* 限制輸入框寬度，避免它們佔滿整行 */
-.filter-controls input {
-    width: auto !important;     /* 強制覆蓋原本的 100% */
-    min-width: 80px;            /* 設定最小寬度 */
-    max-width: 180px;           /* 設定最大寬度 */
-    height: 38px;               /* 設定統一高度 */
-    padding: 5px 10px;
-    background-color: #1e293b;  /* 確保背景色與深色主題一致 */
-    border: 1px solid #334155;
-    border-radius: 4px;
-    color: #fff;
-}
-
-/* --- 修改 [執行] 按鈕樣式：改為與背景相似的形式 (Ghost Style) --- */
-.btn-filter {
-    background-color: transparent !important; /* 背景透明 */
-    border: 1px solid #475569 !important;     /* 給予灰色細邊框 */
-    color: #94a3b8 !important;                /* 文字使用次要灰色 */
-    padding: 0 20px !important;
-    height: 38px;                             /* 高度與輸入框一致 */
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    
-    /* Flex 用於讓圖示跟文字置中 */
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    margin-top: 0 !important; /* 修正可能原本有的上方邊距 */
-}
-
-/* 滑鼠移過去的效果 */
-.btn-filter:hover {
-    background-color: rgba(255, 255, 255, 0.05) !important; /* 微微發亮 */
-    border-color: #cbd5e1 !important; /* 邊框變亮 */
-    color: #fff !important;           /* 文字變白 */
-}
-
-/* --- 修正表格寬度與對齊 (新增) --- */
-
-/* 強制表格區塊填滿左右版面 */
+/* --- 10. 表格樣式優化 --- */
 .table-wrapper {
-    width: 100%;        /* 容器寬度滿版 */
-    overflow-x: auto;   /* 保持響應式滾動功能 */
+    width: 100%;
+    overflow-x: auto;
 }
 
 .fl-table {
-    width: 100% !important; /* 強制表格本體寬度滿版 */
-    table-layout: auto;     /* 讓瀏覽器自動分配欄位寬度以填滿空間 */
+    width: 100% !important;
+    table-layout: auto;
 }
 
+/* 表格欄位文字置中 */
+.fl-table th, .fl-table td {
+    text-align: left; /* 預設靠左 */
+}
 
-/* --- 新增：可點擊的 Customer ID 樣式 --- */
+/* 指定特定欄位置中 (Surname, 流失主因等) */
+.fl-table th:nth-child(2), .fl-table td:nth-child(2), /* Surname */
+.fl-table th:nth-child(3), .fl-table td:nth-child(3), /* 機率 */
+.fl-table th:nth-child(4), .fl-table td:nth-child(4), /* 風險 */
+.fl-table th:nth-child(5), .fl-table td:nth-child(5), /* 主因1 */
+.fl-table th:nth-child(6), .fl-table td:nth-child(6), /* 主因2 */
+.fl-table th:nth-child(7), .fl-table td:nth-child(7)  /* 主因3 */
+{
+    text-align: center !important;
+}
+
+/* 可點擊 ID 樣式 */
 .clickable-id {
     padding: 12px;
-    color: var(--secondary); /* 使用青色亮光色 */
+    color: var(--secondary);
     cursor: pointer;
     font-weight: 500;
     transition: all 0.2s ease;
@@ -275,4 +231,77 @@
     color: #fff;
     text-shadow: 0 0 8px rgba(56, 189, 248, 0.6);
     background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* --- 11. 篩選控制列 --- */
+.filter-controls {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 20px;
+    padding: 0 15px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.filter-controls .input-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+}
+
+.filter-controls input {
+    width: auto !important;
+    min-width: 80px;
+    max-width: 180px;
+    height: 38px;
+    padding: 5px 10px;
+    background-color: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 4px;
+    color: #fff;
+}
+
+.btn-filter {
+    background-color: transparent !important;
+    border: 1px solid #475569 !important;
+    color: #94a3b8 !important;
+    padding: 0 20px !important;
+    height: 38px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 0 !important;
+}
+
+.btn-filter:hover {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    border-color: #cbd5e1 !important;
+    color: #fff !important;
+}
+
+/* --- 12. RWD 手機版適配 --- */
+@media (max-width: 1000px) {
+    .dashboard-layout {
+        grid-template-columns: 1fr; /* 小螢幕變回單欄，上下排列 */
+    }
+    
+    .layout-left, .layout-right {
+        height: auto; /* 手機版高度自動，不需要強制拉伸 */
+    }
+    
+    .main-content {
+        padding: 20px;
+    }
+    
+    /* 手機版移除強制填滿，避免過長空白 */
+    .layout-left .card,
+    .layout-right .card {
+        flex: initial;
+    }
 }

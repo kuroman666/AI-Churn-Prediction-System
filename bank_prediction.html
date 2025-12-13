@@ -35,9 +35,7 @@
         <div class="dashboard-layout">
             
             <div class="layout-left">
-                <section class="section-divider">
-                    <h2 class="section-title"><i class="fa-solid fa-user-check"></i> 單筆即時診斷</h2>
-                </section>
+                
 
                 <div class="card">
                     <div class="card-header"><i class="fa-solid fa-pen-to-square"></i> 客戶特徵參數</div>
@@ -100,13 +98,24 @@
             </div>
 
             <div class="layout-right">
+
+                <div class="card" id="predictionPlaceholder">
+                    <div class="card-header"><i class="fa-solid fa-chart-pie"></i> 預測分析面板</div>
+                    <div class="placeholder-container">
+                        <i class="fa-solid fa-chart-simple placeholder-icon"></i>
+                        <p class="placeholder-text">
+                            請輸入左側資料並點擊「執行 AI 預測」<br>
+                            以查看流失機率與 SHAP 決策因子分析
+                        </p>
+                    </div>
+                </div>
+
                 <div class="result-grid" id="resultSection" style="display: none;">
                     
                     <div class="card score-card">
                         <div class="card-header"><i class="fa-solid fa-magnifying-glass-chart"></i>預測結果</div>
                         
                         <div class="score-layout-row">
-                            
                             <div class="score-info">
                                 <div id="riskBadge" class="risk-badge risk-low">等待分析...</div>
                                 <div class="probability-value" id="probValue" style="margin: 5px 0; font-size: 2.5rem;">--%</div>
@@ -116,7 +125,6 @@
                             <div class="score-chart-container">
                                 <canvas id="churnChart"></canvas>
                             </div>
-                            
                         </div>
                     </div>
 
@@ -133,7 +141,9 @@
                             <p style="font-size: 14px; color: #cbd5e1;" id="suggestionText">系統建議...</p>
                         </div>
                     </div>
+
                 </div>
+
             </div>
 
         </div> <hr style="border: 0; border-top: 1px solid #334155; margin: 50px 0;">

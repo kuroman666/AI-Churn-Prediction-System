@@ -59,6 +59,14 @@ async function predictChurn() {
 
 function updateUI(probability, shapData, inputData) {
     const resultSection = document.getElementById('resultSection');
+    const placeholder = document.getElementById('predictionPlaceholder'); // 新增這行
+
+    // --- 新增：切換顯示狀態 ---
+    if (placeholder) {
+        placeholder.style.display = 'none'; // 隱藏提示卡片
+    }
+    resultSection.style.display = 'grid'; // 顯示結果區
+    
     const probValue = document.getElementById('probValue');
     const riskBadge = document.getElementById('riskBadge');
     const suggestionText = document.getElementById('suggestionText');
@@ -203,6 +211,17 @@ function viewCustomerDetail(customerId) {
 
     // 2. 更新上方結果區 UI (模擬 updateUI 的行為)
     const resultSection = document.getElementById('resultSection');
+    const placeholder = document.getElementById('predictionPlaceholder'); // 新增這行
+
+    // --- 新增：切換顯示狀態 ---
+    if (placeholder) {
+        placeholder.style.display = 'none'; // 隱藏提示卡片
+    }
+    resultSection.style.display = 'grid'; // 顯示結果區
+    // -----------------------
+
+    resultSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    
     const probValue = document.getElementById('probValue');
     const riskBadge = document.getElementById('riskBadge');
     const suggestionText = document.getElementById('suggestionText');
