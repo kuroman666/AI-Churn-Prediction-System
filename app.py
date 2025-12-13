@@ -152,29 +152,53 @@ def predict_batch():
         
         ids = df['CustomerId'] if 'CustomerId' in df.columns else df.index
         surnames = df['Surname'] if 'Surname' in df.columns else [''] * len(df)
+        
+        # 這裡需要保存一份 processed_data 供後續取值
         processed_data = FeatureEngineer.run_v2_preprocessing(df, is_train=False)
+        
+        # 確保模型輸入資料正確
         if 'id' in processed_data.columns: processed_data.drop(columns=['id'], inplace=True)
         
-        # 修改後的寫法
-        raw_probs = model.predict_proba(df_processed)[:, 1]
-        probabilities = np.minimum(raw_probs, 0.999) # 將所有大於 0.999 的值都設為 0.999
+        # 修正後的寫法 (與單筆預測邏輯一致)
+        raw_probs = model.predict_proba(processed_data)[:, 1]
+        probabilities = np.minimum(raw_probs, 0.999) 
         shap_values_matrix = explainer.shap_values(processed_data)
+        
         if isinstance(shap_values_matrix, list): shap_values_target = shap_values_matrix[1]
         else: shap_values_target = shap_values_matrix
 
         feature_names = processed_data.columns.tolist()
         results = []
+        
         for i, prob in enumerate(probabilities):
             row_shap_values = shap_values_target[i]
-            features_with_impact = list(zip(feature_names, row_shap_values))
-            features_with_impact.sort(key=lambda x: x[1], reverse=True)
-            top_3_features = [item[0] for item in features_with_impact[:3]]
+            
+            # --- 新增這段：準備詳細的 SHAP 資料供前端繪圖 ---
+            shap_details = []
+            for name, val in zip(feature_names, row_shap_values):
+                # 取得該特徵的實際數值 (轉字串以免 JSON error)
+                feature_val = processed_data.iloc[i][name]
+                shap_details.append({
+                    'feature': name,
+                    'impact': float(val),
+                    'value': str(feature_val)
+                })
+            # 排序並只取前 10 名 (減少傳輸量)
+            shap_details.sort(key=lambda x: abs(x['impact']), reverse=True)
+            shap_details = shap_details[:10]
+            # ---------------------------------------------
+
+            # 抓出前三名特徵名稱 (給列表顯示用)
+            top_3_features = [item['feature'] for item in shap_details[:3]]
+            
             results.append({
                 'customerId': int(ids[i]) if 'CustomerId' in df.columns else i,
                 'surname': str(surnames[i]),
                 'probability': float(prob),
-                'important_features': top_3_features
+                'important_features': top_3_features,
+                'shap_details': shap_details  # <--- 將詳細資料回傳
             })
+            
         return jsonify({'status': 'success', 'results': results})
     except Exception as e:
         return jsonify({'error': str(e)}), 500

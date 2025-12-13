@@ -257,3 +257,22 @@
     width: 100% !important; /* 強制表格本體寬度滿版 */
     table-layout: auto;     /* 讓瀏覽器自動分配欄位寬度以填滿空間 */
 }
+
+
+/* --- 新增：可點擊的 Customer ID 樣式 --- */
+.clickable-id {
+    padding: 12px;
+    color: var(--secondary); /* 使用青色亮光色 */
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    text-decoration-color: rgba(56, 189, 248, 0.3);
+}
+
+.clickable-id:hover {
+    color: #fff;
+    text-shadow: 0 0 8px rgba(56, 189, 248, 0.6);
+    background-color: rgba(255, 255, 255, 0.05);
+}

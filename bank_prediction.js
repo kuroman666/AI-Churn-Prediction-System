@@ -188,6 +188,62 @@ function updateShapChart(shapData) {
 // PART 2: 批次分析功能
 // ==========================================
 
+// ==========================================
+// 新增功能: 點擊 ID 查看詳情
+// ==========================================
+function viewCustomerDetail(customerId) {
+    // 1. 從全域變數中找到該客戶資料
+    // 注意: customerId 可能是數字或字串，使用 == 做寬鬆比對
+    const customerData = globalBatchData.find(row => row.customerId == customerId);
+    
+    if (!customerData) {
+        alert("找不到該客戶資料");
+        return;
+    }
+
+    // 2. 更新上方結果區 UI (模擬 updateUI 的行為)
+    const resultSection = document.getElementById('resultSection');
+    const probValue = document.getElementById('probValue');
+    const riskBadge = document.getElementById('riskBadge');
+    const suggestionText = document.getElementById('suggestionText');
+
+    // 顯示結果區
+    resultSection.style.display = 'grid';
+    // 捲動到上方
+    resultSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+    // 更新機率與標籤
+    const percentage = (customerData.probability * 100).toFixed(1);
+    probValue.innerText = `${percentage}%`;
+    const isHighRisk = customerData.probability > 0.5;
+
+    // 更新標題顯示這是特定客戶的分析
+    const cardHeader = document.querySelector('.score-card .card-header');
+    if(cardHeader) cardHeader.innerHTML = `<i class="fa-solid fa-user-tag"></i> 客戶 ${customerData.customerId} (${customerData.surname}) 分析結果`;
+
+    if (isHighRisk) {
+        riskBadge.className = 'risk-badge risk-high';
+        riskBadge.innerText = '高風險 High Risk';
+        probValue.style.background = `linear-gradient(90deg, #f87171, #ef4444)`;
+        probValue.style.webkitBackgroundClip = 'text';
+        suggestionText.innerText = `[批次分析] 客戶 ${customerData.surname} 流失風險極高！主因為 ${customerData.important_features[0]}。`;
+    } else {
+        riskBadge.className = 'risk-badge risk-low';
+        riskBadge.innerText = '低風險 Low Risk';
+        probValue.style.background = 'linear-gradient(90deg, #34d399, #10b981)';
+        probValue.style.webkitBackgroundClip = 'text';
+        suggestionText.innerText = `[批次分析] 客戶 ${customerData.surname} 狀態穩定。`;
+    }
+
+    // 3. 更新圖表
+    updateChart(customerData.probability, isHighRisk);
+    
+    // 使用後端傳回來的詳細 shap_details 繪製長條圖
+    if (customerData.shap_details) {
+        updateShapChart(customerData.shap_details);
+    }
+}
+
 async function uploadAndPredict() {
     const fileInput = document.getElementById('csvFileInput');
     const btn = fileInput.parentNode.querySelector('.btn-predict');
@@ -286,13 +342,8 @@ function filterData() {
         const tr = document.createElement('tr');
         tr.style.borderBottom = '1px solid #1e293b';
         
-        // 修改為：
         let calcPercent = row.probability * 100;
-
-        // 如果計算結果大於 99.9，強制設為 99.9；否則維持原樣
-        if (calcPercent > 99.9) {
-            calcPercent = 99.9;
-        }
+        if (calcPercent > 99.9) calcPercent = 99.9;
 
         const probPercent = calcPercent.toFixed(1) + '%';
         const isHighRisk = row.probability > 0.5;
@@ -305,9 +356,12 @@ function filterData() {
         const f2 = features.length > 1 ? features[1] : '-';
         const f3 = features.length > 2 ? features[2] : '-';
 
-        // 修改 tr.innerHTML 的內容
+        // ★★★ 修改重點：ID 欄位加入 onclick 與 class ★★★
         tr.innerHTML = `
-            <td style="padding: 12px;">${row.customerId}</td>
+            <td class="clickable-id" onclick="viewCustomerDetail('${row.customerId}')" title="點擊查看詳細 SHAP 分析圖">
+                <i class="fa-solid fa-chart-pie" style="margin-right:5px; font-size: 0.8em;"></i>
+                ${row.customerId}
+            </td>
             
             <td style="padding: 12px; text-align: left;">${row.surname}</td>
             
