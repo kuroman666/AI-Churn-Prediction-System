@@ -1,0 +1,160 @@
+/* bank_roi.css */
+
+/* --- 佈局設定 (ROI 專用) --- */
+.roi-layout {
+    display: grid;
+    grid-template-columns: 320px 1fr; /* 左側固定 320px，右側自動填滿 */
+    gap: 30px;
+    align-items: start;
+    width: 100%;
+}
+
+/* RWD: 螢幕變窄時改為上下排列 */
+@media (max-width: 1024px) {
+    .roi-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* --- 左側：參數設定卡片 --- */
+.settings-card {
+    position: sticky; /* 讓設定區塊在捲動時固定 (可選) */
+    top: 20px;
+    height: auto;
+}
+
+.settings-card h2 {
+    font-size: 20px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* --- 右側：結果與表格區 --- */
+.results-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    width: 100%;
+}
+
+/* --- KPI 數據卡片區 --- */
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* 2x2 排列 */
+    gap: 20px;
+}
+
+@media (max-width: 600px) {
+    .kpi-grid {
+        grid-template-columns: 1fr; /* 手機版變單欄 */
+    }
+}
+
+.kpi-card {
+    background: linear-gradient(145deg, #1e293b, #0f172a);
+    padding: 25px 20px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.kpi-value {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--primary);
+    margin: 10px 0 5px 0;
+    font-family: 'Outfit', sans-serif;
+}
+
+.kpi-label {
+    color: var(--text-sub);
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.kpi-subtext {
+    font-size: 12px;
+    color: #64748b;
+    margin-top: 5px;
+}
+
+/* 顏色變體 */
+.text-green { color: #10b981 !important; }
+.text-amber { color: #fbbf24 !important; }
+.text-blue  { color: #38bdf8 !important; }
+
+/* --- 表格區塊優化 --- */
+.table-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.table-title {
+    font-size: 18px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* 搜尋框樣式 */
+.search-box input {
+    background: var(--bg-dark);
+    border: 1px solid var(--border);
+    color: var(--text-main);
+    padding: 8px 12px;
+    border-radius: 6px;
+    width: 220px;
+    transition: all 0.3s ease;
+}
+
+.search-box input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
+}
+
+/* 表格容器，確保不會破版 */
+.table-wrapper {
+    overflow-x: auto;
+    width: 100%;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+}
+
+.fl-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 600px; /* 防止表格在手機上擠成一團 */
+}
+
+.fl-table th {
+    background-color: #1e293b;
+    color: var(--text-sub);
+    font-weight: 600;
+    padding: 15px;
+    text-align: center; /* 標題置中 */
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+}
+
+.fl-table td {
+    padding: 15px;
+    text-align: center; /* 內容置中 */
+    border-bottom: 1px solid #334155;
+    color: var(--text-main);
+}
+
+.fl-table tr:last-child td {
+    border-bottom: none;
+}
+
+.fl-table tr:hover td {
+    background-color: rgba(255, 255, 255, 0.02);
+}
