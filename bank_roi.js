@@ -117,10 +117,12 @@ function displayTableRows(dataList) {
         return;
     }
 
-    // 為了效能，如果資料超過 500 筆，只渲染前 500 筆 (除非使用者是在精確搜尋)
-    // 如果您希望真的「全部顯示」，可以把 slice 拿掉，但資料量大時網頁會變慢
-    //const displayLimit = 500; 
-    //const dataToRender = dataList.slice(0, displayLimit);
+    // 如果您想顯示全部資料，請直接將 dataList 賦值給 dataToRender
+    const dataToRender = dataList; 
+
+    // 如果想限制顯示筆數（例如 500 筆），則使用下面這行（二擇一）：
+    // const displayLimit = 500;
+    // const dataToRender = dataList.slice(0, displayLimit);
 
     dataToRender.forEach((item, index) => {
         const tr = document.createElement('tr');
@@ -146,11 +148,11 @@ function displayTableRows(dataList) {
     });
 
     // 如果資料被截斷，顯示提示
-    if (dataList.length > displayLimit) {
+    /*if (dataList.length > displayLimit) {
         const tr = document.createElement('tr');
         tr.innerHTML = `<td colspan="6" style="text-align:center; color: #64748b; font-size: 12px; padding: 10px;">
             還有 ${dataList.length - displayLimit} 筆資料未顯示，請使用搜尋功能查看特定客戶。
         </td>`;
         tbody.appendChild(tr);
-    }
+    }*/
 }
