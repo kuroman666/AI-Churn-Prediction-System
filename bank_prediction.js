@@ -3,7 +3,7 @@
 // --- 全域變數設定 ---
 let churnChartInstance = null;
 let shapChartInstance = null;
-let globalBatchData = []; // 儲存批次分析的原始資料
+let globalBatchData = []; 
 
 // 自動判斷後端 API 網址
 const API_BASE_URL = (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost')
@@ -11,11 +11,11 @@ const API_BASE_URL = (window.location.hostname === '127.0.0.1' || window.locatio
     : 'https://ai-churn-prediction-system.onrender.com';
 
 // ==========================================
-// PART 1: 單筆預測功能 (原 bank.js)
+// PART 1: 單筆預測功能
 // ==========================================
 
 async function predictChurn() {
-    const btn = document.querySelector('#predictionForm .btn-predict'); // 鎖定表單內的按鈕
+    const btn = document.querySelector('#predictionForm .btn-predict');
     const originalText = btn.innerHTML;
     btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 分析中...';
     btn.disabled = true;
@@ -63,8 +63,12 @@ function updateUI(probability, shapData, inputData) {
     const riskBadge = document.getElementById('riskBadge');
     const suggestionText = document.getElementById('suggestionText');
 
-    resultSection.classList.add('active');
-    // 讓畫面平滑捲動到結果區
+    // ★★★ 修改重點：將 'flex' 改為 'grid' (或者 'block' 亦可，若 CSS 已設定 grid) ★★★
+    // 舊的寫法: resultSection.style.display = 'flex'; 
+    // 新的寫法:
+    resultSection.style.display = 'grid';
+    
+    // 讓畫面平滑捲動到結果區 (雖然結果在右側，但手機版可能需要)
     resultSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
     const percentage = (probability * 100).toFixed(1);
@@ -181,12 +185,11 @@ function updateShapChart(shapData) {
 }
 
 // ==========================================
-// PART 2: 批次分析功能 (原 bank_data.js)
+// PART 2: 批次分析功能
 // ==========================================
 
 async function uploadAndPredict() {
     const fileInput = document.getElementById('csvFileInput');
-    // 鎖定上傳區塊的按鈕，避免選到單筆預測的按鈕
     const btn = fileInput.parentNode.querySelector('.btn-predict');
     
     if (fileInput.files.length === 0) {
@@ -232,7 +235,6 @@ function renderBatchResults(data) {
     const section = document.getElementById('batchResultSection');
     section.style.display = 'block';
     
-    // 平滑捲動到批次結果區
     setTimeout(() => {
         section.classList.add('active'); 
         section.scrollIntoView({ behavior: 'smooth', block: 'start' });
