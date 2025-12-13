@@ -88,7 +88,7 @@ load_model()
 def home():
     return "Bank AI Backend with SHAP is Running!"
 
-# 1. 單筆預測接口 (用於：上方表單 & 點擊批次列表ID)
+# 1. 單筆預測接口 (用於：上方表單 & 點擊批次列表ID) - 包含 SHAP
 @app.route('/predict', methods=['POST'])
 def predict():
     global model, explainer
@@ -111,34 +111,49 @@ def predict():
             'IsActiveMember': int(1 if data.get('active') else 0),
             'EstimatedSalary': float(data.get('salary'))
         }])
+        
         processed_data = FeatureEngineer.run_v2_preprocessing(raw_df, is_train=False)
-        # 修改後的寫法 (加入 min 限制)
+        
+        # 1. 計算機率
         raw_prob = float(model.predict_proba(processed_data)[0][1])
-        probability = min(raw_prob, 0.999)  # 強制上限為 0.999 (99.9%)
+        probability = min(raw_prob, 0.999)
+
+        # 2. 計算 SHAP (單筆預測必須保留此部分)
         shap_values = explainer.shap_values(processed_data)
-        if isinstance(shap_values, list): sv = shap_values[1][0]
-        else: sv = shap_values[0]
+        
+        # 處理 SHAP 格式 (相容不同版本的 shap 套件)
+        if isinstance(shap_values, list): 
+            sv = shap_values[1][0]
+        else: 
+            sv = shap_values[0]
         
         feature_names = processed_data.columns.tolist()
         shap_data = []
         base_value = explainer.expected_value
         if isinstance(base_value, np.ndarray): base_value = float(base_value[0])
+        
         for name, value in zip(feature_names, sv):
             shap_data.append({
-                'feature': name, 'impact': float(value), 'value': str(processed_data.iloc[0][name])
+                'feature': name, 
+                'impact': float(value), 
+                'value': str(processed_data.iloc[0][name])
             })
+            
         shap_data.sort(key=lambda x: abs(x['impact']), reverse=True)
         shap_data = shap_data[:10]
         
-        # ★ 這裡必須保留 SHAP 計算
-        shap_values = explainer.shap_values(processed_data) 
-        # ... 回傳 shap_data ...
-        return jsonify({'shap_data': shap_data, ...}
+        return jsonify({
+            'probability': float(probability), 
+            'status': 'success', 
+            'shap_data': shap_data, 
+            'base_value': float(base_value)
+        })
 
-        return jsonify({'probability': float(probability), 'status': 'success', 'shap_data': shap_data, 'base_value': float(base_value)})
     except Exception as e:
+        print(f"Error in /predict: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
+# 2. 批次預測接口 (用於：CSV 上傳) - 不含 SHAP，速度快
 @app.route('/predict_batch', methods=['POST'])
 def predict_batch():
     global model, explainer
@@ -169,10 +184,9 @@ def predict_batch():
         probabilities = np.minimum(raw_probs, 0.999) 
         
         # 2. 不在此處計算 SHAP，節省大量時間
-        # shap_values_matrix = explainer.shap_values(processed_data) <--- 移除這行
         
         # 3. 將原始資料轉為 Dict 列表，以便前端稍後請求詳細分析
-        # 我們需要確保 NaN 值被處理，避免 JSON 錯誤，這裡簡單用 fillna
+        # 我們需要確保 NaN 值被處理，避免 JSON 錯誤
         raw_records = df.fillna(0).to_dict(orient='records')
 
         results = []
