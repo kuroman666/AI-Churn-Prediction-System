@@ -58,10 +58,11 @@
 }
 
 /* --- 預測結果圖表 (甜甜圈圖) --- */
+/* 修改後：請將 center 改為 stretch */
 .score-card {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: stretch; /* 改為 stretch，讓標題能填滿寬度並靠左 */
     width: 100%;
 }
 
@@ -88,5 +89,53 @@
     
     .main-content {
         padding: 20px; /* 手機版內縮減少 */
+    }
+}
+
+/* --- 針對縮短版面的 score-card 優化 --- */
+
+/* 讓內部內容變為橫向排列 */
+.score-layout-row {
+    display: flex;
+    flex-direction: row;       /* 水平排列 */
+    align-items: center;       /* 垂直置中 */
+    justify-content: center;   /* 水平置中 */
+    gap: 10px;                 /* 左右間距 */
+    width: 100%;
+    padding: 0 10px;
+}
+
+/* 左側文字區塊設定 */
+.score-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;                   /* 佔據一半空間 */
+}
+
+/* 右側圖表區塊設定 (限制高度與寬度) */
+.score-chart-container {
+    flex: 1;                   /* 佔據一半空間 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    max-width: 160px;          /* 限制最大寬度 */
+    height: 160px;             /* 限制高度，確保版面縮短 */
+}
+
+/* 覆寫原本的 canvas 設定，讓它適應較小的容器 */
+.score-card canvas {
+    max-width: 100% !important;
+    max-height: 100% !important;
+    width: auto !important;
+    height: auto !important;
+    margin: 0 !important;
+}
+
+/* RWD: 手機版若太窄，可以自動變回直排 (可選) */
+@media (max-width: 400px) {
+    .score-layout-row {
+        flex-direction: column;
     }
 }

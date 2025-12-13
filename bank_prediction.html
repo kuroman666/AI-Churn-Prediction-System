@@ -103,12 +103,20 @@
                 <div class="result-grid" id="resultSection" style="display: none;">
                     
                     <div class="card score-card">
-                        <div class="card-header" style="justify-content: center; border: none;">預測結果</div>
-                        <div id="riskBadge" class="risk-badge risk-low">等待分析...</div>
-                        <div class="probability-value" id="probValue">--%</div>
-                        <p style="color: var(--text-sub); text-align: center;">客戶流失機率</p>
-                        <div style="margin-top: 10px; width: 100%; min-height: 250px;">
-                            <canvas id="churnChart"></canvas>
+                        <div class="card-header"><i class="fa-solid fa-magnifying-glass-chart"></i>預測結果</div>
+                        
+                        <div class="score-layout-row">
+                            
+                            <div class="score-info">
+                                <div id="riskBadge" class="risk-badge risk-low">等待分析...</div>
+                                <div class="probability-value" id="probValue" style="margin: 5px 0; font-size: 2.5rem;">--%</div>
+                                <p style="color: var(--text-sub); font-size: 0.9rem; margin: 0;">客戶流失機率</p>
+                            </div>
+
+                            <div class="score-chart-container">
+                                <canvas id="churnChart"></canvas>
+                            </div>
+                            
                         </div>
                     </div>
 
