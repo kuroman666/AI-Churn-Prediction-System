@@ -199,9 +199,11 @@ function updateShapChart(shapData) {
 // ==========================================
 // 新增功能: 點擊 ID 查看詳情
 // ==========================================
-function viewCustomerDetail(customerId) {
-    // 1. 從全域變數中找到該客戶資料
-    // 注意: customerId 可能是數字或字串，使用 == 做寬鬆比對
+// ==========================================
+// 修改後的 viewCustomerDetail: 點擊時才去後端算 SHAP
+// ==========================================
+async function viewCustomerDetail(customerId) {
+    // 1. 找到本地暫存的該筆資料
     const customerData = globalBatchData.find(row => row.customerId == customerId);
     
     if (!customerData) {
@@ -209,57 +211,84 @@ function viewCustomerDetail(customerId) {
         return;
     }
 
-    // 2. 更新上方結果區 UI (模擬 updateUI 的行為)
+    // 2. 顯示載入中狀態 (因為要呼叫 API)
     const resultSection = document.getElementById('resultSection');
-    const placeholder = document.getElementById('predictionPlaceholder'); // 新增這行
-
-    // --- 新增：切換顯示狀態 ---
-    if (placeholder) {
-        placeholder.style.display = 'none'; // 隱藏提示卡片
-    }
-    resultSection.style.display = 'grid'; // 顯示結果區
-    // -----------------------
-
-    resultSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    
+    const placeholder = document.getElementById('predictionPlaceholder');
     const probValue = document.getElementById('probValue');
     const riskBadge = document.getElementById('riskBadge');
     const suggestionText = document.getElementById('suggestionText');
+    const cardHeader = document.querySelector('.score-card .card-header');
 
-    // 顯示結果區
+    // UI 切換
+    if (placeholder) placeholder.style.display = 'none';
     resultSection.style.display = 'grid';
-    // 捲動到上方
     resultSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
-    // 更新機率與標籤
-    const percentage = (customerData.probability * 100).toFixed(1);
-    probValue.innerText = `${percentage}%`;
-    const isHighRisk = customerData.probability > 0.5;
-
-    // 更新標題顯示這是特定客戶的分析
-    const cardHeader = document.querySelector('.score-card .card-header');
-    if(cardHeader) cardHeader.innerHTML = `<i class="fa-solid fa-user-tag"></i> 客戶 ${customerData.customerId} (${customerData.surname}) 分析結果`;
-
-    if (isHighRisk) {
-        riskBadge.className = 'risk-badge risk-high';
-        riskBadge.innerText = '高風險 High Risk';
-        probValue.style.background = `linear-gradient(90deg, #f87171, #ef4444)`;
-        probValue.style.webkitBackgroundClip = 'text';
-        suggestionText.innerText = `[批次分析] 客戶 ${customerData.surname} 流失風險極高！主因為 ${customerData.important_features[0]}。`;
-    } else {
-        riskBadge.className = 'risk-badge risk-low';
-        riskBadge.innerText = '低風險 Low Risk';
-        probValue.style.background = 'linear-gradient(90deg, #34d399, #10b981)';
-        probValue.style.webkitBackgroundClip = 'text';
-        suggestionText.innerText = `[批次分析] 客戶 ${customerData.surname} 狀態穩定。`;
-    }
-
-    // 3. 更新圖表
-    updateChart(customerData.probability, isHighRisk);
+    // 顯示「分析中」
+    probValue.innerText = "...";
+    probValue.style.fontSize = "1.5rem";
+    riskBadge.innerText = "AI 計算中...";
+    riskBadge.className = 'risk-badge';
+    riskBadge.style.backgroundColor = '#64748b';
+    suggestionText.innerText = "正在為此客戶進行即時 SHAP 歸因分析，請稍候...";
     
-    // 使用後端傳回來的詳細 shap_details 繪製長條圖
-    if (customerData.shap_details) {
-        updateShapChart(customerData.shap_details);
+    // 更新標題
+    if(cardHeader) cardHeader.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> 客戶 ${customerData.customerId} 分析中...`;
+
+    // 3. 準備發送給單筆預測 API (/predict) 的資料
+    // 注意：CSV 的欄位名稱通常是大寫開頭 (CreditScore)，但 /predict API 預期的是小寫開頭 (creditScore)
+    // 這裡進行對應轉換
+    const raw = customerData.raw_data;
+    
+    const apiPayload = {
+        creditScore: raw.CreditScore,
+        geography: raw.Geography,
+        gender: raw.Gender,
+        age: raw.Age,
+        tenure: raw.Tenure,
+        balance: raw.Balance,
+        numOfProducts: raw.NumOfProducts,
+        hasCrCard: raw.HasCrCard === 1,      // 轉換為布林值或 API 接受的格式
+        active: raw.IsActiveMember === 1,    // 轉換為布林值
+        salary: raw.EstimatedSalary
+    };
+
+    try {
+        // 4. 呼叫現有的單筆預測 API
+        const response = await fetch(`${API_BASE_URL}/predict`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(apiPayload)
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            // 5. 取得結果後，更新 UI (包含 SHAP 圖)
+            
+            // 恢復標題
+            if(cardHeader) cardHeader.innerHTML = `<i class="fa-solid fa-user-tag"></i> 客戶 ${customerData.customerId} (${customerData.surname}) 分析結果`;
+            
+            // 恢復機率字體大小
+            probValue.style.fontSize = "2.5rem";
+
+            // 使用 updateUI 更新畫面 (傳入計算後的 SHAP data)
+            updateUI(result.probability, result.shap_data, apiPayload);
+
+            // 修正 updateUI 可能會覆蓋掉標題的問題，再次設定標題
+            setTimeout(() => {
+                const newHeader = document.querySelector('.score-card .card-header');
+                if(newHeader) newHeader.innerHTML = `<i class="fa-solid fa-user-tag"></i> 客戶 ${customerData.customerId} (${customerData.surname}) 分析結果`;
+            }, 50);
+
+        } else {
+            alert('詳細分析失敗：' + (result.error || '未知錯誤'));
+            riskBadge.innerText = "分析失敗";
+        }
+
+    } catch (error) {
+        console.error('API Error:', error);
+        alert('無法連接後端進行詳細分析');
     }
 }
 
@@ -319,6 +348,12 @@ function renderBatchResults(data) {
 }
 
 function filterData() {
+    // 在 filterData 迴圈內修改：
+    const features = row.important_features || []; 
+    // 如果沒有特徵資料，顯示提示文字
+    const f1 = features.length > 0 ? features[0] : '<span style="color:#64748b; font-size:12px;">點擊ID查看</span>';
+    const f2 = features.length > 1 ? features[1] : '-';
+    const f3 = features.length > 2 ? features[2] : '-';
     const thresholdInput = document.getElementById('thresholdInput');
     const searchInput = document.getElementById('searchInput');
     const tbody = document.getElementById('batchResultBody');
