@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="bank_prediction.css"> 
     <style>
         /* ROI 專用樣式 */
         .kpi-grid {
@@ -60,63 +59,19 @@
 
         <section class="input-section">
             <div class="card">
-                <div class="card-header"><i class="fa-solid fa-sliders"></i> 行銷參數設定</div>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; align-items: end;">
+                <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <i class="fa-solid fa-list-ol"></i> 
+                        <span>高價值挽留名單 (完整清單)</span>
+                        <span id="roiListStats" style="font-size: 14px; color: var(--text-sub); font-weight: normal;">(共 0 筆)</span>
+                    </div>
                     
-                    <div class="form-group">
-                        <label>上傳客戶名單 (CSV)</label>
-                        <input type="file" id="roiCsvInput" accept=".csv">
+                    <div class="search-box">
+                        <input type="text" id="tableSearchInput" 
+                               placeholder="🔍 搜尋 ID 或姓氏..." 
+                               onkeyup="filterRoiTable()"
+                               style="padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-dark); color: var(--text); width: 200px;">
                     </div>
-
-                    <div class="form-group">
-                        <label>單一客戶挽留成本 ($)</label>
-                        <input type="number" id="retentionCost" value="500">
-                    </div>
-
-                    <div class="form-group">
-                        <label>預期挽留成功率 (0.0 - 1.0)</label>
-                        <input type="number" id="successRate" value="0.2" step="0.01" max="1.0" min="0.0">
-                    </div>
-
-                    <button type="button" class="btn-predict" onclick="calculateROI()" style="margin-bottom: 20px;">
-                        <i class="fa-solid fa-calculator"></i> 計算最佳回報
-                    </button>
-                </div>
-                <p style="font-size: 12px; color: #64748b; margin-top: 10px;">
-                    * 系統將自動過濾掉挽留成本高於預期收益的客戶 (ENR < 0)，只針對具備正投資回報的客戶進行建議。
-                </p>
-            </div>
-        </section>
-
-        <section class="result-container" id="roiResultSection" style="display: none; margin-top: 20px;">
-            
-            <div class="kpi-grid">
-                <div class="kpi-card">
-                    <div class="kpi-label">建議挽留人數</div>
-                    <div class="kpi-value text-amber" id="kpiCount">0</div>
-                    <div class="kpi-label">Actionable Customers</div>
-                </div>
-                <div class="kpi-card">
-                    <div class="kpi-label">預期總淨利 (Net ROI)</div>
-                    <div class="kpi-value text-green" id="kpiRoi">$0</div>
-                    <div class="kpi-label">Total Expected Profit</div>
-                </div>
-                <div class="kpi-card">
-                    <div class="kpi-label">總投入成本</div>
-                    <div class="kpi-value" id="kpiCost" style="color: #ef4444;">$0</div>
-                    <div class="kpi-label">Marketing Budget</div>
-                </div>
-                <div class="kpi-card">
-                    <div class="kpi-label">平均每人預期獲利 (ENR)</div>
-                    <div class="kpi-value" id="kpiAvgEnr" style="color: #38bdf8;">$0</div>
-                    <div class="kpi-label">Avg. Net Revenue</div>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-header">
-                    <i class="fa-solid fa-list-ol"></i> 高價值挽留名單 (Top Priority)
-                    <div class="filter-stats" id="roiListStats"></div>
                 </div>
                 
                 <div class="table-wrapper">

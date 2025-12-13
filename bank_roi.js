@@ -1,5 +1,9 @@
 // bank_roi.js
 
+// 在檔案最上方定義一個變數來儲存所有資料
+let fullRoiDataList = [];
+
+
 const API_BASE_URL = (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost')
     ? 'http://127.0.0.1:5000' 
     : 'https://ai-churn-prediction-system.onrender.com';
@@ -51,10 +55,11 @@ async function calculateROI() {
 function renderRoiResults(data) {
     const section = document.getElementById('roiResultSection');
     const summary = data.summary;
-    const list = data.results;
+    
+    // 將後端回傳的完整資料存入全域變數
+    fullRoiDataList = data.results || [];
 
-    // 1. 更新 KPI 卡片
-    // 使用 Intl.NumberFormat 格式化金額
+    // 1. 更新 KPI 卡片 (保持不變)
     const currencyFmt = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
     
     document.getElementById('kpiCount').innerText = summary.actionable_count.toLocaleString();
@@ -64,43 +69,88 @@ function renderRoiResults(data) {
     const avgEnr = summary.actionable_count > 0 ? (summary.total_roi / summary.actionable_count) : 0;
     document.getElementById('kpiAvgEnr').innerText = currencyFmt.format(avgEnr);
 
-    // 2. 更新表格
-    const tbody = document.getElementById('roiTableBody');
-    tbody.innerHTML = '';
-
-    if (list.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px;">沒有任何客戶符合正回報 (ROI > 0) 條件。</td></tr>';
-    } else {
-        // 只顯示前 100 筆，避免網頁卡頓
-        const displayLimit = 100;
-        list.slice(0, displayLimit).forEach((item, index) => {
-            const tr = document.createElement('tr');
-            
-            // 格式化數字
-            const probPercent = (item.probability * 100).toFixed(1) + '%';
-            const ltvStr = currencyFmt.format(item.ltv);
-            const enrStr = currencyFmt.format(item.enr);
-
-            // 高亮 ENR 特別高的
-            const enrStyle = index < 3 ? 'color: #fbbf24; font-weight: bold;' : 'color: #38bdf8;';
-
-            tr.innerHTML = `
-                <td style="padding: 12px; color: #94a3b8;">#${index + 1}</td>
-                <td style="padding: 12px;">${item.customerId}</td>
-                <td style="padding: 12px;">${item.surname}</td>
-                <td style="padding: 12px;">${probPercent}</td>
-                <td style="padding: 12px;">${ltvStr}</td>
-                <td style="padding: 12px; ${enrStyle}">${enrStr}</td>
-            `;
-            tbody.appendChild(tr);
-        });
-    }
+    // 2. 顯示表格 (預設顯示全部或前 500 筆)
+    filterRoiTable();
 
     // 顯示區塊
     section.style.display = 'block';
+}
+
+/**
+ * 搜尋過濾功能
+ * 根據輸入框的內容篩選 fullRoiDataList，然後重新繪製表格
+ */
+function filterRoiTable() {
+    const input = document.getElementById('tableSearchInput');
+    const filter = input.value.toLowerCase().trim();
     
-    // 更新統計文字
-    document.getElementById('roiListStats').innerHTML = `
-        顯示 ROI 最高的 ${Math.min(list.length, 100)} 筆資料 (共 ${list.length} 筆)
-    `;
+    // 如果沒有輸入內容，就顯示原始清單
+    let filteredData = fullRoiDataList;
+
+    if (filter) {
+        filteredData = fullRoiDataList.filter(item => {
+            const idStr = String(item.customerId).toLowerCase();
+            const surnameStr = String(item.surname).toLowerCase();
+            // 只要 ID 或 姓氏 包含關鍵字就符合
+            return idStr.includes(filter) || surnameStr.includes(filter);
+        });
+    }
+
+    displayTableRows(filteredData);
+}
+
+/**
+ * 負責將資料渲染到 HTML Table
+ */
+function displayTableRows(dataList) {
+    const tbody = document.getElementById('roiTableBody');
+    const statsLabel = document.getElementById('roiListStats');
+    const currencyFmt = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
+    
+    tbody.innerHTML = ''; // 清空舊資料
+
+    // 更新筆數顯示
+    statsLabel.innerText = `(顯示 ${dataList.length} 筆 / 共 ${fullRoiDataList.length} 筆)`;
+
+    if (dataList.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px;">找不到符合的資料。</td></tr>';
+        return;
+    }
+
+    // 為了效能，如果資料超過 500 筆，只渲染前 500 筆 (除非使用者是在精確搜尋)
+    // 如果您希望真的「全部顯示」，可以把 slice 拿掉，但資料量大時網頁會變慢
+    //const displayLimit = 500; 
+    //const dataToRender = dataList.slice(0, displayLimit);
+
+    dataToRender.forEach((item, index) => {
+        const tr = document.createElement('tr');
+        
+        // 格式化數字
+        const probPercent = (item.probability * 100).toFixed(1) + '%';
+        const ltvStr = currencyFmt.format(item.ltv);
+        const enrStr = currencyFmt.format(item.enr);
+
+        // 高亮 ENR 特別高的 (前 3 名) - 注意這裡是用原始排序的 index
+        const originalIndex = fullRoiDataList.indexOf(item);
+        const enrStyle = originalIndex < 3 ? 'color: #fbbf24; font-weight: bold;' : 'color: #38bdf8;';
+
+        tr.innerHTML = `
+            <td style="padding: 12px; color: #94a3b8;">#${originalIndex + 1}</td>
+            <td style="padding: 12px;">${item.customerId}</td>
+            <td style="padding: 12px;">${item.surname}</td>
+            <td style="padding: 12px;">${probPercent}</td>
+            <td style="padding: 12px;">${ltvStr}</td>
+            <td style="padding: 12px; ${enrStyle}">${enrStr}</td>
+        `;
+        tbody.appendChild(tr);
+    });
+
+    // 如果資料被截斷，顯示提示
+    if (dataList.length > displayLimit) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td colspan="6" style="text-align:center; color: #64748b; font-size: 12px; padding: 10px;">
+            還有 ${dataList.length - displayLimit} 筆資料未顯示，請使用搜尋功能查看特定客戶。
+        </td>`;
+        tbody.appendChild(tr);
+    }
 }
