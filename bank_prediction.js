@@ -386,11 +386,11 @@ function filterData() {
     `;
 
     if (filteredData.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:20px; color: #94a3b8;">沒有符合條件的客戶</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px; color: #94a3b8;">沒有符合條件的客戶</td></tr>';
         return;
     }
 
-    // ★★★ 6. 迴圈開始：這裡才有 'row' 變數 ★★★
+    // 6. 迴圈開始
     filteredData.forEach(row => {
         const tr = document.createElement('tr');
         tr.style.borderBottom = '1px solid #1e293b';
@@ -404,15 +404,7 @@ function filterData() {
         const riskColor = isHighRisk ? '#ef4444' : '#10b981';
         const riskLabel = isHighRisk ? '高風險' : '低風險';
 
-        // ★★★ 修正位置：特徵處理程式碼必須放在這裡！ ★★★
-        // 因為這裡已經進入迴圈，所以讀得到 row.important_features
-        //const features = row.important_features || []; 
-        
-        // 為了優化效能，批次時不回傳特徵，改顯示提示文字
-        //const f1 = features.length > 0 ? features[0] : '<span style="color:#64748b; font-size:12px; cursor:pointer;">點擊ID查看</span>';
-        //const f2 = features.length > 1 ? features[1] : '-';
-        //const f3 = features.length > 2 ? features[2] : '-';
-        // ★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+        // ★★★ 修正：這裡不再需要 f1, f2, f3 的定義，因為我們要把欄位刪掉了 ★★★
 
         tr.innerHTML = `
             <td class="clickable-id" onclick="viewCustomerDetail('${row.customerId}')" title="點擊查看詳細 SHAP 分析圖">
@@ -429,10 +421,7 @@ function filterData() {
                 </span>
             </td>
             
-            <td style="padding: 12px; font-size: 13px; color: #94a3b8;">${f1}</td>
-            <td style="padding: 12px; font-size: 13px; color: #94a3b8;">${f2}</td>
-            <td style="padding: 12px; font-size: 13px; color: #94a3b8;">${f3}</td>
-        `;
+            `;
         
         tbody.appendChild(tr);
     });
