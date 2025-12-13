@@ -348,23 +348,20 @@ function renderBatchResults(data) {
 }
 
 function filterData() {
-    // 在 filterData 迴圈內修改：
-    const features = row.important_features || []; 
-    // 如果沒有特徵資料，顯示提示文字
-    const f1 = features.length > 0 ? features[0] : '<span style="color:#64748b; font-size:12px;">點擊ID查看</span>';
-    const f2 = features.length > 1 ? features[1] : '-';
-    const f3 = features.length > 2 ? features[2] : '-';
+    // 1. 取得 DOM 元素
     const thresholdInput = document.getElementById('thresholdInput');
     const searchInput = document.getElementById('searchInput');
     const tbody = document.getElementById('batchResultBody');
     const statsDiv = document.getElementById('filterStats');
 
+    // 2. 處理篩選數值
     let thresholdPercent = parseFloat(thresholdInput.value);
     if (isNaN(thresholdPercent)) thresholdPercent = 0;
     const thresholdDecimal = thresholdPercent / 100;
 
     const searchTerm = searchInput ? searchInput.value.trim().toLowerCase() : '';
 
+    // 3. 執行篩選邏輯
     const filteredData = globalBatchData.filter(row => {
         const passThreshold = row.probability >= thresholdDecimal;
         const customerIdStr = String(row.customerId).toLowerCase();
@@ -377,10 +374,11 @@ function filterData() {
         return passThreshold && passSearch;
     });
 
+    // 4. 排序 (機率由高到低)
     filteredData.sort((a, b) => b.probability - a.probability);
 
+    // 5. 清空表格與更新統計
     tbody.innerHTML = ''; 
-
     statsDiv.innerHTML = `
         篩選條件 > ${thresholdPercent}% ${searchTerm ? ` + "${searchTerm}"` : ''} : 
         共有 <span class="highlight">${filteredData.length}</span> 位符合
@@ -392,6 +390,7 @@ function filterData() {
         return;
     }
 
+    // ★★★ 6. 迴圈開始：這裡才有 'row' 變數 ★★★
     filteredData.forEach(row => {
         const tr = document.createElement('tr');
         tr.style.borderBottom = '1px solid #1e293b';
@@ -405,12 +404,16 @@ function filterData() {
         const riskColor = isHighRisk ? '#ef4444' : '#10b981';
         const riskLabel = isHighRisk ? '高風險' : '低風險';
 
+        // ★★★ 修正位置：特徵處理程式碼必須放在這裡！ ★★★
+        // 因為這裡已經進入迴圈，所以讀得到 row.important_features
         const features = row.important_features || []; 
-        const f1 = features.length > 0 ? features[0] : '-';
+        
+        // 為了優化效能，批次時不回傳特徵，改顯示提示文字
+        const f1 = features.length > 0 ? features[0] : '<span style="color:#64748b; font-size:12px; cursor:pointer;">點擊ID查看</span>';
         const f2 = features.length > 1 ? features[1] : '-';
         const f3 = features.length > 2 ? features[2] : '-';
+        // ★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
 
-        // ★★★ 修改重點：ID 欄位加入 onclick 與 class ★★★
         tr.innerHTML = `
             <td class="clickable-id" onclick="viewCustomerDetail('${row.customerId}')" title="點擊查看詳細 SHAP 分析圖">
                 <i class="fa-solid fa-chart-pie" style="margin-right:5px; font-size: 0.8em;"></i>
