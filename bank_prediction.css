@@ -200,7 +200,7 @@
     background-color: rgba(30, 41, 59, 0.3);
 }
 
-/* --- 10. 表格樣式優化 --- */
+/* --- 10. 表格樣式優化 (修正對齊版) --- */
 .table-wrapper {
     width: 100%;
     overflow-x: auto;
@@ -208,26 +208,55 @@
 
 .fl-table {
     width: 100% !important;
-    table-layout: auto;
+    /* 修改重點 1：使用 fixed 讓欄位寬度固定，不會因為內容長度亂跳 */
+    table-layout: fixed; 
+    border-collapse: separate; 
+    border-spacing: 0 5px; /* 讓每一列之間有一點點間距，增加質感 */
 }
 
-/* 表格欄位文字置中 */
+/* 表格基本設定 */
 .fl-table th, .fl-table td {
-    text-align: left; /* 預設靠左 */
+    padding: 15px;      /* 增加內距，讓空間寬敞一點 */
+    vertical-align: middle; /* 確保所有內容垂直置中 */
+    white-space: nowrap;    /* 防止文字換行 */
 }
 
-/* 指定特定欄位置中 (Surname, 流失主因等) */
-.fl-table th:nth-child(2), .fl-table td:nth-child(2), /* Surname */
-.fl-table th:nth-child(3), .fl-table td:nth-child(3), /* 機率 */
-.fl-table th:nth-child(4), .fl-table td:nth-child(4), /* 風險 */
-.fl-table th:nth-child(5), .fl-table td:nth-child(5), /* 主因 */
-{
-    text-align: center !important;
+/* --- 個別欄位對齊設定 --- */
+
+/* 第一欄：Customer ID (靠左 + 縮排) */
+.fl-table th:nth-child(1), 
+.fl-table td:nth-child(1) {
+    text-align: left;
+    padding-left: 40px; /* 讓 ID 往右移一點，不要貼著邊緣 */
+    width: 25%;         /* 設定固定寬度比例 */
 }
 
-/* 可點擊 ID 樣式 */
+/* 第二欄：Surname (修改重點 2：改為靠左) 
+   原因：名字長短不一，置中會產生視覺上的「歪斜」，靠左才會整齊 */
+.fl-table th:nth-child(2), 
+.fl-table td:nth-child(2) {
+    text-align: left; 
+    padding-left: 20px; 
+    width: 25%;
+}
+
+/* 第三欄：流失機率 (數字維持置中或靠右) */
+.fl-table th:nth-child(3), 
+.fl-table td:nth-child(3) {
+    text-align: center;
+    width: 20%;
+    font-family: 'Outfit', sans-serif; /* 確保數字字型統一 */
+}
+
+/* 第四欄：風險等級 (Badge 維持置中) */
+.fl-table th:nth-child(4), 
+.fl-table td:nth-child(4) {
+    text-align: center;
+    width: 30%;
+}
+
+/* 可點擊 ID 樣式 (維持不變) */
 .clickable-id {
-    padding: 12px;
     color: var(--secondary);
     cursor: pointer;
     font-weight: 500;
@@ -240,7 +269,6 @@
 .clickable-id:hover {
     color: #fff;
     text-shadow: 0 0 8px rgba(56, 189, 248, 0.6);
-    background-color: rgba(255, 255, 255, 0.05);
 }
 
 /* --- 11. 篩選控制列 --- */
