@@ -88,6 +88,7 @@ load_model()
 def home():
     return "Bank AI Backend with SHAP is Running!"
 
+# 1. 單筆預測接口 (用於：上方表單 & 點擊批次列表ID)
 @app.route('/predict', methods=['POST'])
 def predict():
     global model, explainer
@@ -128,6 +129,11 @@ def predict():
             })
         shap_data.sort(key=lambda x: abs(x['impact']), reverse=True)
         shap_data = shap_data[:10]
+        
+        # ★ 這裡必須保留 SHAP 計算
+        shap_values = explainer.shap_values(processed_data) 
+        # ... 回傳 shap_data ...
+        return jsonify({'shap_data': shap_data, ...}
 
         return jsonify({'probability': float(probability), 'status': 'success', 'shap_data': shap_data, 'base_value': float(base_value)})
     except Exception as e:
