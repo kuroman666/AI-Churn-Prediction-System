@@ -442,13 +442,6 @@
     font-weight: 500;
 }
 
-/* 手機版改回單欄，避免太擠 */
-@media (max-width: 600px) {
-    .raw-data-grid {
-        grid-template-columns: 1fr;
-    }
-}
-
 /* RWD: 手機版變回單欄上下排列 */
 @media (max-width: 1000px) {
     .batch-container-grid {
