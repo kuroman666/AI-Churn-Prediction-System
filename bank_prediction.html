@@ -164,22 +164,22 @@
                         <div class="card" style="height: 100%;">
                             <div class="card-header"><i class="fa-solid fa-list-check"></i> 批次分析列表</div>
                             
-                            <div class="filter-controls" style="flex-direction: column; align-items: stretch; gap: 10px;">
-                                <div style="display: flex; gap: 10px;">
-                                    <div class="input-group" style="flex: 1;">
-                                        <label for="thresholdInput" style="min-width: 60px;">機率 ></label>
-                                        <input type="number" id="thresholdInput" value="50" min="0" max="100" step="1" style="width: 100%;">
-                                        <span>%</span>
-                                    </div>
-                                    <button class="btn-filter" onclick="filterData()" style="width: auto;">
-                                        <i class="fa-solid fa-filter"></i>
-                                    </button>
-                                </div>
+                            <div class="filter-controls">
                                 <div class="input-group">
+                                    <label for="thresholdInput">機率 ></label>
+                                    <input type="number" id="thresholdInput" value="50" min="0" max="100" step="1" style="width: 80px;">
+                                    <span>%</span>
+                                </div>
+
+                                <div class="input-group" style="flex: 1;">
                                     <input type="text" id="searchInput" placeholder="搜尋 ID 或 姓氏" style="width: 100%;">
                                 </div>
+
+                                <button class="btn-filter" onclick="filterData()">
+                                    <i class="fa-solid fa-filter"></i>
+                                </button>
                             </div>
-                            
+                                                        
                             <div class="filter-stats" id="filterStats" style="margin: 5px 0; padding: 0 15px; font-size: 0.85rem;"></div>
                             
                             <div class="table-wrapper" style="flex: 1; overflow-y: auto; max-height: 800px;">
