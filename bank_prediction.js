@@ -209,6 +209,8 @@ async function viewCustomerDetail(customerId) {
         alert("找不到該客戶資料");
         return;
     }
+    // --- 新增：立即渲染原始資料 (不需要等後端) ---
+    renderRawData(customerData.raw_data);
 
     // 2. 取得右側面板的 DOM 元素 (使用新 ID)
     const placeholder = document.getElementById('batchPlaceholder');
@@ -272,6 +274,51 @@ async function viewCustomerDetail(customerId) {
         console.error('API Error:', error);
         alert('無法連接後端');
     }
+}
+
+// ★ 新增：渲染原始資料的輔助函式
+function renderRawData(raw) {
+    const container = document.getElementById('batch_rawDataGrid');
+    if (!container) return;
+
+    // 格式化輔助：布林值轉文字
+    const formatBool = (val) => (val === 1 || val === true) ? 
+        '<span style="color:#10b981"><i class="fa-solid fa-check"></i> Yes</span>' : 
+        '<span style="color:#64748b">No</span>';
+
+    // 定義要顯示的欄位與標籤
+    const fields = [
+        { key: 'CreditScore', label: '信用分數' },
+        { key: 'Geography', label: '地區' },
+        { key: 'Gender', label: '性別' },
+        { key: 'Age', label: '年齡' },
+        { key: 'Tenure', label: '往來年資' },
+        { key: 'Balance', label: '帳戶餘額', format: v => `$${parseFloat(v).toLocaleString()}` },
+        { key: 'NumOfProducts', label: '產品數量' },
+        { key: 'HasCrCard', label: '持有信用卡', format: formatBool },
+        { key: 'IsActiveMember', label: '活躍會員', format: formatBool },
+        { key: 'EstimatedSalary', label: '預估薪資', format: v => `$${parseFloat(v).toLocaleString()}` }
+    ];
+
+    let html = '';
+    fields.forEach(f => {
+        // 確保抓得到值 (有些 CSV 欄位首字大寫或小寫可能不同，這裡假設 raw 跟 CSV header 一致)
+        let value = raw[f.key];
+        
+        // 如果有定義格式化函式就執行，否則直接顯示
+        if (f.format) {
+            value = f.format(value);
+        }
+
+        html += `
+            <div class="data-item">
+                <label>${f.label}</label>
+                <div class="value">${value}</div>
+            </div>
+        `;
+    });
+
+    container.innerHTML = html;
 }
 
 // ★ 新增：專門處理批次右側面板的 UI 更新函式

@@ -410,6 +410,45 @@
     width: 100%;
 }
 
+/* --- 14. 批次分析 - 原始資料卡片樣式 --- */
+.raw-data-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* 兩欄排列 */
+    gap: 15px;
+    padding: 5px;
+}
+
+.data-item {
+    display: flex;
+    flex-direction: column;
+    border-bottom: 1px solid #334155;
+    padding-bottom: 8px;
+}
+
+.data-item:nth-last-child(-n+2) {
+    border-bottom: none; /* 最後兩項拿掉底線 */
+}
+
+.data-item label {
+    font-size: 0.8rem;
+    color: #94a3b8;
+    margin-bottom: 4px;
+}
+
+.data-item .value {
+    font-size: 1rem;
+    color: #fff;
+    font-family: 'Outfit', sans-serif; /* 數字用這個字體比較好看 */
+    font-weight: 500;
+}
+
+/* 手機版改回單欄，避免太擠 */
+@media (max-width: 600px) {
+    .raw-data-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
 /* RWD: 手機版變回單欄上下排列 */
 @media (max-width: 1000px) {
     .batch-container-grid {
