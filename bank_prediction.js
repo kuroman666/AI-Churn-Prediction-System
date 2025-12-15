@@ -3,7 +3,10 @@
 // --- 全域變數設定 ---
 let churnChartInstance = null;
 let shapChartInstance = null;
-let globalBatchData = []; 
+let globalBatchData = [];
+// ★ 新增：批次專用的 Chart 實例，避免跟上方的衝突
+let batchChurnChartInstance = null;
+let batchShapChartInstance = null;
 
 // 自動判斷後端 API 網址
 const API_BASE_URL = (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost')
@@ -195,13 +198,9 @@ function updateShapChart(shapData) {
 // ==========================================
 // PART 2: 批次分析功能
 // ==========================================
-
-// ==========================================
 // 新增功能: 點擊 ID 查看詳情
-// ==========================================
-// ==========================================
 // 修改後的 viewCustomerDetail: 點擊時才去後端算 SHAP
-// ==========================================
+// 修改後的 viewCustomerDetail: 將結果顯示在右側面板，而非捲動到上方
 async function viewCustomerDetail(customerId) {
     // 1. 找到本地暫存的該筆資料
     const customerData = globalBatchData.find(row => row.customerId == customerId);
@@ -211,35 +210,30 @@ async function viewCustomerDetail(customerId) {
         return;
     }
 
-    // 2. 顯示載入中狀態 (因為要呼叫 API)
-    const resultSection = document.getElementById('resultSection');
-    const placeholder = document.getElementById('predictionPlaceholder');
-    const probValue = document.getElementById('probValue');
-    const riskBadge = document.getElementById('riskBadge');
-    const suggestionText = document.getElementById('suggestionText');
-    const cardHeader = document.querySelector('.score-card .card-header');
+    // 2. 取得右側面板的 DOM 元素 (使用新 ID)
+    const placeholder = document.getElementById('batchPlaceholder');
+    const detailContent = document.getElementById('batchDetailContent');
+    
+    const probValue = document.getElementById('batch_probValue');
+    const riskBadge = document.getElementById('batch_riskBadge');
+    const suggestionText = document.getElementById('batch_suggestionText');
+    const header = document.getElementById('batch_detailHeader');
 
-    // UI 切換
+    // UI 切換: 隱藏提示，顯示內容
     if (placeholder) placeholder.style.display = 'none';
-    resultSection.style.display = 'grid';
-    resultSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    if (detailContent) detailContent.style.display = 'flex';
 
-    // 顯示「分析中」
+    // 3. 顯示「分析中」狀態
     probValue.innerText = "...";
     probValue.style.fontSize = "1.5rem";
-    riskBadge.innerText = "AI 計算中...";
+    riskBadge.innerText = "計算中...";
     riskBadge.className = 'risk-badge';
     riskBadge.style.backgroundColor = '#64748b';
-    suggestionText.innerText = "正在為此客戶進行即時 SHAP 歸因分析，請稍候...";
-    
-    // 更新標題
-    if(cardHeader) cardHeader.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> 客戶 ${customerData.customerId} 分析中...`;
+    suggestionText.innerText = "正在進行即時 SHAP 歸因分析...";
+    header.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> 正在分析 ${customerData.surname}...`;
 
-    // 3. 準備發送給單筆預測 API (/predict) 的資料
-    // 注意：CSV 的欄位名稱通常是大寫開頭 (CreditScore)，但 /predict API 預期的是小寫開頭 (creditScore)
-    // 這裡進行對應轉換
+    // 4. 準備 API 資料
     const raw = customerData.raw_data;
-    
     const apiPayload = {
         creditScore: raw.CreditScore,
         geography: raw.Geography,
@@ -248,13 +242,13 @@ async function viewCustomerDetail(customerId) {
         tenure: raw.Tenure,
         balance: raw.Balance,
         numOfProducts: raw.NumOfProducts,
-        hasCrCard: raw.HasCrCard === 1,      // 轉換為布林值或 API 接受的格式
-        active: raw.IsActiveMember === 1,    // 轉換為布林值
+        hasCrCard: raw.HasCrCard === 1,
+        active: raw.IsActiveMember === 1,
         salary: raw.EstimatedSalary
     };
 
     try {
-        // 4. 呼叫現有的單筆預測 API
+        // 呼叫預測 API
         const response = await fetch(`${API_BASE_URL}/predict`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -264,32 +258,115 @@ async function viewCustomerDetail(customerId) {
         const result = await response.json();
 
         if (response.ok) {
-            // 5. 取得結果後，更新 UI (包含 SHAP 圖)
-            
-            // 恢復標題
-            if(cardHeader) cardHeader.innerHTML = `<i class="fa-solid fa-user-tag"></i> 客戶 ${customerData.customerId} (${customerData.surname}) 分析結果`;
-            
-            // 恢復機率字體大小
+            // 5. 更新右側 UI (呼叫專用的 Batch UI Update)
+            header.innerHTML = `<i class="fa-solid fa-user-tag"></i> ${customerData.customerId} (${customerData.surname})`;
             probValue.style.fontSize = "2.5rem";
-
-            // 使用 updateUI 更新畫面 (傳入計算後的 SHAP data)
-            updateUI(result.probability, result.shap_data, apiPayload);
-
-            // 修正 updateUI 可能會覆蓋掉標題的問題，再次設定標題
-            setTimeout(() => {
-                const newHeader = document.querySelector('.score-card .card-header');
-                if(newHeader) newHeader.innerHTML = `<i class="fa-solid fa-user-tag"></i> 客戶 ${customerData.customerId} (${customerData.surname}) 分析結果`;
-            }, 50);
-
+            
+            updateBatchUI(result.probability, result.shap_data);
         } else {
-            alert('詳細分析失敗：' + (result.error || '未知錯誤'));
-            riskBadge.innerText = "分析失敗";
+            alert('分析失敗：' + (result.error || '未知錯誤'));
+            riskBadge.innerText = "失敗";
         }
 
     } catch (error) {
         console.error('API Error:', error);
-        alert('無法連接後端進行詳細分析');
+        alert('無法連接後端');
     }
+}
+
+// ★ 新增：專門處理批次右側面板的 UI 更新函式
+function updateBatchUI(probability, shapData) {
+    const probValue = document.getElementById('batch_probValue');
+    const riskBadge = document.getElementById('batch_riskBadge');
+    const suggestionText = document.getElementById('batch_suggestionText');
+
+    const percentage = (probability * 100).toFixed(1);
+    probValue.innerText = `${percentage}%`;
+
+    const isHighRisk = probability > 0.5;
+
+    if (isHighRisk) {
+        riskBadge.className = 'risk-badge risk-high';
+        riskBadge.innerText = '高風險 High Risk';
+        probValue.style.background = `linear-gradient(90deg, #f87171, #ef4444)`;
+        probValue.style.webkitBackgroundClip = 'text';
+        suggestionText.innerText = "⚠️ 警告：此客戶流失風險高，主因為 " + getTopReason(shapData) + "。";
+    } else {
+        riskBadge.className = 'risk-badge risk-low';
+        riskBadge.innerText = '低風險 Low Risk';
+        probValue.style.background = 'linear-gradient(90deg, #34d399, #10b981)';
+        probValue.style.webkitBackgroundClip = 'text';
+        suggestionText.innerText = "✅ 狀態良好：客戶留存機率高，優勢在於 " + getTopReason(shapData, false) + "。";
+    }
+
+    // 更新右側圖表 (傳入專用的 ID)
+    updateBatchCharts(probability, shapData, isHighRisk);
+}
+
+// ★ 新增：專門繪製批次右側圖表的函式
+function updateBatchCharts(probability, shapData, isHighRisk) {
+    // 1. 圓餅圖
+    const ctxPie = document.getElementById('batch_churnChart').getContext('2d');
+    const activeColor = isHighRisk ? '#ef4444' : '#10b981';
+
+    if (batchChurnChartInstance) batchChurnChartInstance.destroy();
+
+    batchChurnChartInstance = new Chart(ctxPie, {
+        type: 'doughnut',
+        data: {
+            labels: ['流失', '留存'],
+            datasets: [{
+                data: [probability, 1 - probability],
+                backgroundColor: [activeColor, '#334155'],
+                borderWidth: 0,
+                hoverOffset: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '75%',
+            plugins: { legend: { display: false } }
+        }
+    });
+
+    // 2. SHAP 長條圖
+    const ctxBar = document.getElementById('batch_shapChart').getContext('2d');
+    
+    if (batchShapChartInstance) batchShapChartInstance.destroy();
+
+    const labels = shapData.map(item => item.feature);
+    const dataValues = shapData.map(item => item.impact);
+    const bgColors = dataValues.map(val => val > 0 ? '#ef4444' : '#10b981');
+
+    batchShapChartInstance = new Chart(ctxBar, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'SHAP Value',
+                data: dataValues,
+                backgroundColor: bgColors,
+                borderRadius: 4
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: {
+                    grid: { color: '#334155' },
+                    ticks: { color: '#94a3b8' }
+                },
+                y: {
+                    grid: { display: false },
+                    ticks: { color: '#e2e8f0', font: { size: 10 } } // 字體稍微縮小適應右側欄
+                }
+            },
+            plugins: { legend: { display: false } }
+        }
+    });
 }
 
 async function uploadAndPredict() {

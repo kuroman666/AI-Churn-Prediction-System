@@ -33,11 +33,9 @@
         </header>
 
         <div class="dashboard-layout">
-            
             <div class="layout-left">
-                
                 <div class="card">
-                    <div class="card-header"><i class="fa-solid fa-pen-to-square"></i> 客戶特徵參數</div>
+                    <div class="card-header"><i class="fa-solid fa-pen-to-square"></i> 單筆客戶診斷</div>
                     <form id="predictionForm">
                         <div class="form-group">
                             <label>信用分數</label>
@@ -97,7 +95,6 @@
             </div>
 
             <div class="layout-right">
-
                 <div class="card" id="predictionPlaceholder">
                     <div class="card-header"><i class="fa-solid fa-chart-pie"></i> 預測分析面板</div>
                     <div class="placeholder-container">
@@ -110,23 +107,19 @@
                 </div>
 
                 <div class="result-grid" id="resultSection" style="display: none;">
-                    
                     <div class="card score-card">
                         <div class="card-header"><i class="fa-solid fa-magnifying-glass-chart"></i>預測結果</div>
-                        
                         <div class="score-layout-row">
                             <div class="score-info">
                                 <div id="riskBadge" class="risk-badge risk-low">等待分析...</div>
                                 <div class="probability-value" id="probValue" style="margin: 5px 0; font-size: 2.5rem;">--%</div>
                                 <p style="color: var(--text-sub); font-size: 0.9rem; margin: 0;">客戶流失機率</p>
                             </div>
-
                             <div class="score-chart-container">
                                 <canvas id="churnChart"></canvas>
                             </div>
                         </div>
                     </div>
-
                     <div class="card">
                         <div class="card-header"><i class="fa-solid fa-magnifying-glass-chart"></i> AI 決策因子 (SHAP)</div>
                         <div class="shap-container">
@@ -140,61 +133,63 @@
                             <p style="font-size: 14px; color: #cbd5e1;" id="suggestionText">系統建議...</p>
                         </div>
                     </div>
-
                 </div>
+            </div>
+        </div> 
+        
+        <hr style="border: 0; border-top: 1px solid #334155; margin: 50px 0;">
 
+        <div class="batch-layout">
+
+            <div class="card">
+                <div class="card-header"><i class="fa-solid fa-file-csv"></i> 資料匯入 (CSV)</div>
+                <div class="upload-area">
+                    <i class="fa-solid fa-cloud-arrow-up" style="font-size: 40px; color: var(--secondary); margin-bottom: 15px;"></i>
+                    <p style="margin-bottom: 15px; color: #94a3b8;">請上傳包含客戶資料的 CSV 檔案</p>
+                    <input type="file" id="csvFileInput" accept=".csv" style="margin-bottom: 20px; color: #fff; max-width: 100%;">
+                    <div style="font-size: 12px; color: #64748b; margin-top: 5px;">
+                        * 必須包含 CustomerId, Surname, CreditScore, Geography, Gender, Age, Tenure, Balance, NumOfProducts, HasCrCard, IsActiveMember, EstimatedSalary 欄位
+                    </div>
+                    <button type="button" class="btn-predict" onclick="uploadAndPredict()" style="max-width: 300px; width: 100%;">
+                        <i class="fa-solid fa-rocket"></i> 開始批次分析
+                    </button>
+                </div>
             </div>
 
-        </div> <hr style="border: 0; border-top: 1px solid #334155; margin: 50px 0;">
-
-                <div class="batch-layout">
-
-                    <div class="card">
-                        <div class="card-header"><i class="fa-solid fa-file-csv"></i> 資料匯入 (CSV)</div>
-                        
-                        <div class="upload-area">
-                            <i class="fa-solid fa-cloud-arrow-up" style="font-size: 40px; color: var(--secondary); margin-bottom: 15px;"></i>
-                            <p style="margin-bottom: 15px; color: #94a3b8;">請上傳包含客戶資料的 CSV 檔案</p>
-                            <input type="file" id="csvFileInput" accept=".csv" style="margin-bottom: 20px; color: #fff; max-width: 100%;">
-                                <div style="font-size: 12px; color: #64748b; margin-top: 5px;">
-                                    * 必須包含 CustomerId, Surname, CreditScore, Geography, Gender,	Age, Tenure, Balance, NumOfProducts, HasCrCard, IsActiveMember, EstimatedSalary 欄位
-                                </div>
+            <div id="batchResultSection" style="display: none; width: 100%;">
+                
+                <div class="batch-container-grid">
+                    
+                    <div class="batch-left-col">
+                        <div class="card" style="height: 100%;">
+                            <div class="card-header"><i class="fa-solid fa-list-check"></i> 批次分析列表</div>
                             
-                            <button type="button" class="btn-predict" onclick="uploadAndPredict()" style="max-width: 300px; width: 100%;">
-                                <i class="fa-solid fa-rocket"></i> 開始批次分析
-                            </button>
-                        </div>
-                    </div>
-
-                    <div id="batchResultSection" style="display: none; width: 100%;">
-                        <div class="card">
-                            <div class="card-header"><i class="fa-solid fa-list-check"></i> 批次分析結果列表</div>
-                            
-                            <div class="filter-controls">
-                                <div class="input-group">
-                                    <label for="thresholdInput">篩選機率 ></label>
-                                    <input type="number" id="thresholdInput" value="50" min="0" max="100" step="1">
-                                    <span>%</span>
+                            <div class="filter-controls" style="flex-direction: column; align-items: stretch; gap: 10px;">
+                                <div style="display: flex; gap: 10px;">
+                                    <div class="input-group" style="flex: 1;">
+                                        <label for="thresholdInput" style="min-width: 60px;">機率 ></label>
+                                        <input type="number" id="thresholdInput" value="50" min="0" max="100" step="1" style="width: 100%;">
+                                        <span>%</span>
+                                    </div>
+                                    <button class="btn-filter" onclick="filterData()" style="width: auto;">
+                                        <i class="fa-solid fa-filter"></i>
+                                    </button>
                                 </div>
-
                                 <div class="input-group">
-                                    <label for="searchInput" style="margin-left: 10px;">搜尋：</label>
-                                    <input type="text" id="searchInput" placeholder="輸入 ID 或 姓氏">
+                                    <input type="text" id="searchInput" placeholder="搜尋 ID 或 姓氏" style="width: 100%;">
                                 </div>
-                                <button class="btn-filter" onclick="filterData()">
-                                    <i class="fa-solid fa-filter"></i> 執行
-                                </button>
                             </div>
-                            <div class="filter-stats" id="filterStats" style="margin: 10px 0; padding: 0 15px;"></div>
                             
-                            <div class="table-wrapper">
+                            <div class="filter-stats" id="filterStats" style="margin: 5px 0; padding: 0 15px; font-size: 0.85rem;"></div>
+                            
+                            <div class="table-wrapper" style="flex: 1; overflow-y: auto; max-height: 800px;">
                                 <table class="fl-table">
-                                    <thead> 
+                                    <thead style="position: sticky; top: 0; background: #1e293b; z-index: 5;"> 
                                         <tr>
-                                            <th>Customer ID</th>
-                                            <th>Surname</th>
-                                            <th>流失機率</th>
-                                            <th>風險等級</th>
+                                            <th>ID</th>
+                                            <th>姓氏</th>
+                                            <th>機率</th>
+                                            <th>等級</th>
                                         </tr>
                                     </thead>
                                     <tbody id="batchResultBody">
@@ -204,8 +199,55 @@
                         </div>
                     </div>
 
-                </div> 
-            </main>
+                    <div class="batch-right-col">
+                        
+                        <div class="card" id="batchPlaceholder" style="height: 100%; min-height: 400px;">
+                            <div class="card-header"><i class="fa-solid fa-chart-pie"></i> 詳細分析面板</div>
+                            <div class="placeholder-container">
+                                <i class="fa-solid fa-hand-pointer placeholder-icon"></i>
+                                <p class="placeholder-text">
+                                    點擊左側列表中的 <strong>Customer ID</strong><br>
+                                    在此處即時查看詳細 SHAP 分析圖
+                                </p>
+                            </div>
+                        </div>
+
+                        <div id="batchDetailContent" style="display: none; display: flex; flex-direction: column; gap: 20px;">
+                            
+                            <div class="card score-card">
+                                <div class="card-header" id="batch_detailHeader"><i class="fa-solid fa-user-tag"></i> 客戶分析結果</div>
+                                <div class="score-layout-row">
+                                    <div class="score-info">
+                                        <div id="batch_riskBadge" class="risk-badge risk-low">--</div>
+                                        <div class="probability-value" id="batch_probValue" style="margin: 5px 0; font-size: 2.5rem;">--%</div>
+                                        <p style="color: var(--text-sub); font-size: 0.9rem; margin: 0;">客戶流失機率</p>
+                                    </div>
+                                    <div class="score-chart-container">
+                                        <canvas id="batch_churnChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card">
+                                <div class="card-header"><i class="fa-solid fa-magnifying-glass-chart"></i> AI 決策因子 (SHAP)</div>
+                                <div class="shap-container">
+                                    <canvas id="batch_shapChart"></canvas>
+                                </div>
+                                <p style="font-size: 12px; color: #94a3b8; margin: 10px 0;">
+                                    <span style="color: #ef4444;">紅色</span> 代表增加風險，<span style="color: #10b981;">綠色</span> 代表降低風險。
+                                </p>
+                                <div class="suggestion-box">
+                                    <h4 style="color: var(--secondary); margin-bottom: 5px; font-size: 14px;">💡 建議挽留策略</h4>
+                                    <p style="font-size: 14px; color: #cbd5e1;" id="batch_suggestionText">系統建議...</p>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div> </div>
+        </div> 
+    </main>
 
     <script src="bank_prediction.js"></script>
 </body>

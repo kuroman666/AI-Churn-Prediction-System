@@ -343,3 +343,66 @@
         flex: initial;
     }
 }
+
+/* --- 13. 批次分析新版面佈局 (Grid 4:6) --- */
+
+.batch-container-grid {
+    display: grid;
+    /* 重點：左側 40% (4fr)，右側 60% (6fr) */
+    grid-template-columns: 4fr 6fr; 
+    gap: 20px;
+    width: 100%;
+    align-items: start; /* 讓兩邊都靠上對齊 */
+}
+
+/* 左側列表欄位 */
+.batch-left-col {
+    display: flex;
+    flex-direction: column;
+    /* 設定最大高度，讓表格內部可以捲動，而不是讓整個頁面變很長 */
+    height: 800px; 
+}
+
+/* 右側詳細資訊欄位 */
+.batch-right-col {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    /* 重點：Sticky Effect */
+    /* 當左側表格很長往下滑時，右側分析圖會「黏」在畫面上，不會消失 */
+    position: sticky;
+    top: 20px; 
+}
+
+/* 調整表格內的字體大小，因為欄位變窄了 */
+.fl-table th, .fl-table td {
+    padding: 10px 8px; /* 減少內距 */
+    font-size: 0.9rem;
+}
+
+/* 特定欄位寬度微調 */
+.fl-table th:nth-child(1), .fl-table td:nth-child(1) { width: 30%; padding-left: 15px; } /* ID */
+.fl-table th:nth-child(2), .fl-table td:nth-child(2) { width: 25%; padding-left: 5px; }  /* Surname */
+.fl-table th:nth-child(3), .fl-table td:nth-child(3) { width: 20%; text-align: center; } /* Probability */
+.fl-table th:nth-child(4), .fl-table td:nth-child(4) { width: 25%; text-align: center; } /* Badge */
+
+/* 確保右側內容出現時是直向排列 */
+#batchDetailContent {
+    width: 100%;
+}
+
+/* RWD: 手機版變回單欄上下排列 */
+@media (max-width: 1000px) {
+    .batch-container-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .batch-left-col {
+        height: auto;
+        max-height: 500px;
+    }
+    
+    .batch-right-col {
+        position: static; /* 手機版取消 sticky */
+    }
+}
