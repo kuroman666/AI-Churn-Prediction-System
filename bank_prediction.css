@@ -355,12 +355,31 @@
     align-items: start; /* 讓兩邊都靠上對齊 */
 }
 
-/* 左側列表欄位 */
+/* 左側欄位設定：確保移除 height: 800px，讓它自然流動 */
 .batch-left-col {
     display: flex;
     flex-direction: column;
-    /* 設定最大高度，讓表格內部可以捲動，而不是讓整個頁面變很長 */
-    height: 800px; 
+    /* 移除之前的固定高度，避免影響 Grid 結構 */
+    height: auto; 
+}
+
+/* 針對「批次分析列表」內的表格容器進行限制 */
+.batch-left-col .table-wrapper {
+    /* 關鍵：設定最大高度 */
+    /* calc(100vh - 350px) 意思是：螢幕高度扣掉上方 Header 和保留空間 */
+    /* 這樣可以確保在任何螢幕上都不會超出太誇張，若不喜歡動態高度，也可以改成 max-height: 600px; */
+    max-height: calc(100vh - 300px); 
+    min-height: 400px; /* 設個最小高度，避免沒資料時太扁 */
+    
+    /* 讓超出這個高度的內容自動產生卷軸 */
+    overflow-y: auto;
+    overflow-x: hidden;
+    
+    /* 美化卷軸 */
+    scrollbar-width: thin;
+    scrollbar-color: #475569 #1e293b;
+    background-color: rgba(30, 41, 59, 0.2); /* 讓表格區塊底色稍微深一點，增加層次 */
+    border-radius: 4px;
 }
 
 /* 右側詳細資訊欄位 */
@@ -406,3 +425,4 @@
         position: static; /* 手機版取消 sticky */
     }
 }
+
